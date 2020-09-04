@@ -27,8 +27,8 @@ class _MyAppState extends State<MyApp>
   } 
   @override
   Widget build(BuildContext context){
-    return MaterialApp
-    (
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Dashboard',
       theme: ThemeData(primarySwatch: Colors.blue),
       home: hasToken?MainPage():LoginPage(),
