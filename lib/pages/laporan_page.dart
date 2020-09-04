@@ -32,8 +32,6 @@ class _LaporanPageState extends State<LaporanPage>
       body: FutureBuilder(
         future: getData(perpage),
         builder: (BuildContext context, AsyncSnapshot snapshot) {
-          print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
-          print(snapshot.data);
           switch (snapshot.connectionState) {
             case ConnectionState.none:
             case ConnectionState.waiting:
