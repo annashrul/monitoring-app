@@ -3,7 +3,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' show Client, Response;
 import 'package:monitoring_apps/model/auth.dart';
-import 'package:monitoring_apps/model/laporan.dart';
+import 'package:monitoring_apps/model/laporanPenjualan.dart';
 import 'package:monitoring_apps/model/monitoring.dart';
 
 class MonitoringProvider {
@@ -15,7 +15,7 @@ class MonitoringProvider {
   //     return results;
   //   });
   // }
-  Future<List<Laporan>> getLaporan(int limit) async {
+  Future<LaporanPenjualan> getLaporan(int limit) async {
     final response =await client.get(url+"laporan_monitoring?limit=$limit");
     if (response.statusCode == 200) {
       // If the call to the server was successful, parse the JSON

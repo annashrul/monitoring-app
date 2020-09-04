@@ -51,9 +51,6 @@ class _MainPageState extends State<MainPage>
       var cht = jsonDecode(input);
       charts=List<List<double>>.from(cht.map((x) => List<double>.from(x.map((x) => x.toDouble()))));
       setState(() {});
-      print("===================================================================================");
-      print(json.decode(input));
-      print(charts);
     });
 
   }
