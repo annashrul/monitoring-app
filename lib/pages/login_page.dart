@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:monitoring_apps/pages/helper/helper_widget.dart';
 import 'package:monitoring_apps/pages/main_page.dart';
 import 'package:monitoring_apps/provider/monitoring_provider.dart';
 import 'package:monitoring_apps/utils/user_repository.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget {
   static String tag = 'login-page';
@@ -13,106 +15,168 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final _usernameController = TextEditingController();
-  final _passwordController = TextEditingController();
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  bool isLoading = false,isServer=true;
+  var usernameController = TextEditingController();
+  var passwordController = TextEditingController();
+  var serverAddressController = TextEditingController();
+  final FocusNode usernameFocus = FocusNode();
+  final FocusNode passwordFocus = FocusNode();
+  final FocusNode serverAddressFocus = FocusNode();
+
+  Future _Login() async {
+    setState(() {
+      isLoading=false;
+    });
+    if (usernameController.text == '' || passwordController.text == '') {
+      return HelperWidget().showInSnackBar(_scaffoldKey, context, 'username atau password tidak boleh kosong', 'failed');
+    } else {
+      var result = MonitoringProvider().login(usernameController.text, passwordController.text);
+      result.then((val) {
+        if (val.status == 1) {
+          UserRepository().setLogin(islogin: val.msg);
+          HelperWidget().removeNavigator(context,  (context) => MainPage());
+        } else {
+          return HelperWidget().showInSnackBar(_scaffoldKey, context, val.msg, 'failed');
+        }
+        setState(() {});
+      });
+    }
+  }
+
+  Future setServer() async {
+    setState(() {
+      isLoading=false;
+    });
+    if (serverAddressController.text == '') {
+      return HelperWidget().showInSnackBar(_scaffoldKey, context, 'silahkan masukan alamat server', 'failed');
+    } else {
+      final prefs = await SharedPreferences.getInstance();
+      prefs.setString('serverAddress', serverAddressController.text);
+      setState(() {
+        isServer=false;
+      });
+      print("### SERVER ADDRESS RUNNING ON = ${prefs.getString('serverAddress')}");
+    }
+  }
+
+
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    isServer=true;
+  }
+
 
   @override
   Widget build(BuildContext context) {
-    final _scaffoldKey = GlobalKey<ScaffoldState>();
-
-    final logo = Hero(
-      tag: 'Monitoring',
-      child: CircleAvatar(
-        backgroundColor: Colors.transparent,
-        radius: 100.0,
-        child: Image.asset('res/logo.png'),
-      ),
-    );
-
-    final email = TextFormField(
-      keyboardType: TextInputType.text,
-      autofocus: false,
-      controller: _usernameController,
-      decoration: InputDecoration(
-        hintText: 'Username',
-        contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0)),
-      ),
-    );
-
-    final password = TextFormField(
-      autofocus: false,
-      obscureText: true,
-      controller: _passwordController,
-      decoration: InputDecoration(
-        hintText: 'Password',
-        contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0)),
-      ),
-    );
-
-    final loginButton = Padding(
-      padding: EdgeInsets.symmetric(vertical: 16.0),
-      child: Material(
-        elevation: 5.0,
-        child: MaterialButton(
-          minWidth: 200.0,
-          height: 42.0,
-          onPressed: () {
-            var result = MonitoringProvider().login(_usernameController.text, _passwordController.text);
-            result.then((val){
-              if(val.status == 1){
-                UserRepository().setLogin(islogin: val.msg);
-                Navigator.of(context).push(MaterialPageRoute(builder: (_) => MainPage()));
-              }else{
-                // _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text(val.msg)));
-                Fluttertoast.showToast(
-                    msg: val.msg,
-                    toastLength: Toast.LENGTH_SHORT,
-                    gravity: ToastGravity.BOTTOM,
-                    timeInSecForIos: 1,
-                    backgroundColor: Colors.red,
-                    textColor: Colors.white,
-                    fontSize: 16.0
-                );
-              }
-
-              setState(() {});
-            });
-          },
-          color: Colors.lightBlueAccent,
-          child: Text(
-            'Log In',
-            style: TextStyle(color: Colors.white),
-          ),
-        ),
-      ),
-    );
-
     return  WillPopScope(
       onWillPop: _onWillPop,
       child:Scaffold(
-            backgroundColor: Colors.white,
-            key: _scaffoldKey,
-            body: Center(
-              child: ListView(
-                shrinkWrap: true,
-                padding: EdgeInsets.only(left: 24.0, right: 24.0),
-                children: <Widget>[
-                  logo,
-                  SizedBox(height: 48.0),
-                  email,
-                  SizedBox(height: 8.0),
-                  password,
-                  SizedBox(height: 24.0),
-                  loginButton
-                ],
-              ),
-            ),
-          ),
-      );
+        key: _scaffoldKey,
+        body: buildContents(context),
+      ),
+    );
   }
 
+  Widget buildContents(BuildContext context) {
+    return SingleChildScrollView(
+        child: Container(
+          height: MediaQuery.of(context).size.height,
+          child: Stack(
+            children: <Widget>[
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Expanded(flex: 3, child: SizedBox(),),
+                    Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: <Widget>[
+                          Hero(tag: 'Monitoring', child: CircleAvatar(backgroundColor: Colors.transparent, radius: 50.0, child: Image.asset('res/logo.png'),),),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 50,),
+                    isServer?Column(
+                      children: <Widget>[
+                        HelperWidget().entryField(
+                            context,
+                            TextInputAction.done, () {},
+                            serverAddressController,
+                            serverAddressFocus,
+                            "Server Address",
+                            Icon(Icons.link),
+                            isPassword: false
+                        )
+                      ],
+                    ):Column(
+                      children: <Widget>[
+                        HelperWidget().entryField(
+                            context,
+                            TextInputAction.next,
+                                () {HelperWidget().fieldFocusChange(context, usernameFocus, passwordFocus);},
+                            usernameController,
+                            usernameFocus,
+                            "Username",
+                            Icon(Icons.person_pin)
+                        ),
+                        HelperWidget().entryField(
+                            context,
+                            TextInputAction.done, () {},
+                            passwordController,
+                            passwordFocus,
+                            "Password",
+                            Icon(Icons.lock),
+                            isPassword: true
+                        )
+                      ],
+                    ),
+                    SizedBox(height: 20,),
+                    InkWell(
+                      onTap: () {
+                        setState(() {
+                          isLoading = true;
+                        });
+                        isServer?setServer():_Login();
+                      },
+                      child: Container(
+                          width: MediaQuery.of(context).size.width,
+                          padding: EdgeInsets.symmetric(vertical: 15),
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.all(Radius.circular(5)),
+                              boxShadow: <BoxShadow>[
+                                BoxShadow(color: Colors.grey.shade200, offset: Offset(2, 4), blurRadius: 5, spreadRadius: 2)
+                              ],
+                              gradient: LinearGradient(begin: Alignment.centerLeft, end: Alignment.centerRight, colors: [Color(0xfffbb448), Color(0xfff7892b)])
+                          ),
+                          child: isLoading?CircularProgressIndicator():HelperWidget().myTextStyle(context, "MASUK", TextAlign.center, 20.0, FontWeight.bold, Colors.white)
+                      ),
+                    ),
+                    Expanded(
+                      flex: 2,
+                      child: SizedBox(),
+                    ),
+                  ],
+                ),
+              ),
+
+              Positioned(
+                  top: -MediaQuery.of(context).size.height * .15,
+                  right: -MediaQuery.of(context).size.width * .4,
+                  child: BezierContainer())
+            ],
+          ),
+        )
+    );
+  }
   Future<bool> _onWillPop() async {
     return (await showDialog(
       context: context,
@@ -133,3 +197,7 @@ class _LoginPageState extends State<LoginPage> {
     )) ?? false;
   }
 }
+
+
+
+

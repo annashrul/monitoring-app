@@ -1,10 +1,12 @@
 import 'dart:convert';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_sparkline/flutter_sparkline.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:monitoring_apps/pages/laporan_page.dart';
+import 'package:monitoring_apps/pages/laporan_stock/laporan_stock_utama.dart';
 import 'package:monitoring_apps/pages/login_page.dart';
 import 'package:monitoring_apps/provider/monitoring_provider.dart';
 import 'package:monitoring_apps/utils/user_repository.dart';
@@ -21,7 +23,7 @@ class _MainPageState extends State<MainPage>
 
 
   List<List<double>> charts=[[0.1000]];
-  static final List<String> chartDropdownItems = [ 'Bulan ini', 'Semua Periode'];
+  static final List<String> chartDropdownItems = ['Semua Periode','Bulan ini'];
   String actualDropdown = chartDropdownItems[0];
   int actualChart = 0;
   String omzet="0";
@@ -66,7 +68,7 @@ class _MainPageState extends State<MainPage>
             automaticallyImplyLeading: false, // Used for removing back buttoon. 
             elevation: 2.0,
             backgroundColor: Colors.white,
-            title: Text('Monitoring E-commerce', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w600, fontSize: 23.0)),
+            title: Text('Monitoring E-commerce', style: TextStyle(fontFamily:'Rubik',color: Colors.black, fontWeight: FontWeight.w600, fontSize: 23.0)),
             actions: <Widget>
             [
               PopupMenuButton<String>(
@@ -75,7 +77,7 @@ class _MainPageState extends State<MainPage>
                   return {"Logout"}.map((String choice) {
                     return PopupMenuItem<String>(
                       value: choice,
-                      child: Text(choice),
+                      child: Text(choice,style: TextStyle(fontFamily:'Rubik'),),
                     );
                   }).toList();
                 },
@@ -91,8 +93,7 @@ class _MainPageState extends State<MainPage>
 
               //member
               _buildTile(
-                Padding
-                (
+                Padding(
                   padding: const EdgeInsets.all(24.0),
                   child: Row
                   (
@@ -106,8 +107,8 @@ class _MainPageState extends State<MainPage>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>
                         [
-                          Text('Total Member', style: TextStyle(color: Colors.blueAccent)),
-                          Text('$mem', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w700, fontSize: 34.0))
+                          Text('Total Member', style: TextStyle(fontFamily:'Rubik',color: Colors.blueAccent)),
+                          Text('$mem', style: TextStyle(fontFamily:'Rubik',color: Colors.black, fontWeight: FontWeight.w700, fontSize: 34.0))
                         ],
                       ),
                       Material
@@ -149,8 +150,8 @@ class _MainPageState extends State<MainPage>
                         )
                       ),
                       Padding(padding: EdgeInsets.only(bottom: 16.0)),
-                      Text('Penjualan', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w700, fontSize: 24.0)),
-                      Text('$pen', style: TextStyle(color: Colors.black45, fontSize: 18.0)),
+                      Text('Penjualan', style: TextStyle(fontFamily:'Rubik',color: Colors.black, fontWeight: FontWeight.w700, fontSize: 24.0)),
+                      Text('$pen', style: TextStyle(fontFamily:'Rubik',color: Colors.black45, fontSize: 18.0)),
                     ]
                   ),
                 ),
@@ -158,8 +159,7 @@ class _MainPageState extends State<MainPage>
 
               // rata-rata
               _buildTile(
-                Padding
-                (
+                Padding(
                   padding: const EdgeInsets.all(24.0),
                   child: Column
                   (
@@ -178,8 +178,8 @@ class _MainPageState extends State<MainPage>
                         )
                       ),
                       Padding(padding: EdgeInsets.only(bottom: 16.0)),
-                      Text('Rata - Rata', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w700, fontSize: 24.0)),
-                      Text('$avg', style: TextStyle(color: Colors.black45, fontSize: 18.0)),
+                      Text('Rata - Rata', style: TextStyle(fontFamily:'Rubik',color: Colors.black, fontWeight: FontWeight.w700, fontSize: 24.0)),
+                      Text('$avg', style: TextStyle(fontFamily:'Rubik',color: Colors.black45, fontSize: 18.0)),
                     ]
                   ),
                 ),
@@ -187,8 +187,7 @@ class _MainPageState extends State<MainPage>
 
               //omset
               _buildTile(
-                Padding
-                    (
+                Padding(
                       padding: const EdgeInsets.all(24.0),
                       child: Column
                       (
@@ -208,8 +207,8 @@ class _MainPageState extends State<MainPage>
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: <Widget>
                                 [
-                                  Text('Omset', style: TextStyle(color: Colors.green)),
-                                  Text('$omzet', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w700, fontSize: 25.0)),
+                                  Text('Omset', style: TextStyle(fontFamily:'Rubik',color: Colors.green)),
+                                  Text('$omzet', style: TextStyle(fontFamily:'Rubik',color: Colors.black, fontWeight: FontWeight.w700, fontSize: 25.0)),
                                 ],
                               ),
                               DropdownButton
@@ -227,7 +226,7 @@ class _MainPageState extends State<MainPage>
                                   return DropdownMenuItem
                                   (
                                     value: title,
-                                    child: Text(title, style: TextStyle(color: Colors.blue, fontWeight: FontWeight.w400, fontSize: 14.0)),
+                                    child: Text(title, style: TextStyle(fontFamily:'Rubik',color: Colors.blue, fontWeight: FontWeight.w400, fontSize: 14.0)),
                                   );
                                 }).toList()
                               )
@@ -244,11 +243,10 @@ class _MainPageState extends State<MainPage>
                       )
                     ),
               ),
-              
+
               //laporan penjualan
               _buildTile(
-                Padding
-                (
+                Padding(
                   padding: const EdgeInsets.all(24.0),
                   child: Row
                   (
@@ -262,7 +260,7 @@ class _MainPageState extends State<MainPage>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>
                         [
-                          Text('Laporan Penjualan', style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.w700, fontSize: 20.0))
+                          Text('Laporan Penjualan', style: TextStyle(fontFamily:'Rubik',color: Colors.redAccent, fontWeight: FontWeight.w700, fontSize: 20.0))
                         ],
                       ),
                       Material
@@ -282,6 +280,44 @@ class _MainPageState extends State<MainPage>
                   ),
                 ),
                 onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => LaporanPage())),
+              ),
+              //Laporan Stock
+              _buildTile(
+                Padding
+                  (
+                  padding: const EdgeInsets.all(24.0),
+                  child: Row
+                    (
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>
+                      [
+                        Column
+                          (
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>
+                          [
+                            Text('Laporan Stock', style: TextStyle(fontFamily:'Rubik',color: Colors.redAccent, fontWeight: FontWeight.w700, fontSize: 20.0))
+                          ],
+                        ),
+                        Material
+                          (
+                            color: Colors.red,
+                            borderRadius: BorderRadius.circular(24.0),
+                            child: Center
+                              (
+                                child: Padding
+                                  (
+                                  padding: EdgeInsets.all(16.0),
+                                  child: Icon(Icons.list, color: Colors.white, size: 30.0),
+                                )
+                            )
+                        )
+                      ]
+                  ),
+                ),
+                onTap: () => Navigator.of(context).push(CupertinoPageRoute(builder: (_) => LaporanStockUtama())),
               )
             ],
             staggeredTiles: [
@@ -289,6 +325,7 @@ class _MainPageState extends State<MainPage>
               StaggeredTile.extent(1, 180.0),
               StaggeredTile.extent(1, 180.0),
               StaggeredTile.extent(2, 220.0),
+              StaggeredTile.extent(2, 110.0),
               StaggeredTile.extent(2, 110.0),
             ],
           )
