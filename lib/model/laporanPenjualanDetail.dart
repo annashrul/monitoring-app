@@ -81,6 +81,7 @@ class Detail {
         this.id,
         this.nmBrg,
         this.satuan,
+        this.gambar,
     });
 
     String kdTrx;
@@ -98,6 +99,7 @@ class Detail {
     String id;
     String nmBrg;
     String satuan;
+    String gambar;
 
     factory Detail.fromJson(Map<String, dynamic> json) => Detail(
         kdTrx: json["kd_trx"],
@@ -115,6 +117,7 @@ class Detail {
         id: json["id"],
         nmBrg: json["nm_brg"],
         satuan: json["satuan"],
+        gambar: json["gambar"],
     );
 
     Map<String, dynamic> toJson() => {
@@ -133,5 +136,6 @@ class Detail {
         "id": id,
         "nm_brg": nmBrg,
         "satuan": satuan,
+        "gambar": gambar,
     };
 }

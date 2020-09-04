@@ -106,7 +106,7 @@ class _MainPageState extends State<MainPage>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>
                         [
-                          Text('Total Member', style: TextStyle(color: Colors.blueAccent)),
+                          Text('Gross Sales', style: TextStyle(color: Colors.blueAccent)),
                           Text('$mem', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w700, fontSize: 34.0))
                         ],
                       ),
@@ -149,7 +149,7 @@ class _MainPageState extends State<MainPage>
                         )
                       ),
                       Padding(padding: EdgeInsets.only(bottom: 16.0)),
-                      Text('Penjualan', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w700, fontSize: 24.0)),
+                      Text('Transaction', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w700, fontSize: 24.0)),
                       Text('$pen', style: TextStyle(color: Colors.black45, fontSize: 18.0)),
                     ]
                   ),
@@ -178,7 +178,7 @@ class _MainPageState extends State<MainPage>
                         )
                       ),
                       Padding(padding: EdgeInsets.only(bottom: 16.0)),
-                      Text('Rata - Rata', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w700, fontSize: 24.0)),
+                      Text('Net Sales', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w700, fontSize: 24.0)),
                       Text('$avg', style: TextStyle(color: Colors.black45, fontSize: 18.0)),
                     ]
                   ),
@@ -220,7 +220,6 @@ class _MainPageState extends State<MainPage>
                                 {
                                   actualDropdown = value;
                                   actualChart = chartDropdownItems.indexOf(value);
-                                  print("XXXXXXXXXXXXXXXXXXXXXXXXX "+actualChart.toString()); // Refresh the chart
                                 }),
                                 items: chartDropdownItems.map((String title)
                                 {
