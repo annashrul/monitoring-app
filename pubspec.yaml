@@ -63,5 +63,5 @@ flutter:
   fonts:
     - family: Rubik
       fonts:
-        - asset: res/fonts/Rubik/Rubik-Light.ttf
+        - asset: res/fonts/rubik/Rubik-Light.ttf
 
