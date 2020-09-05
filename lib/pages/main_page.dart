@@ -9,7 +9,7 @@ import 'package:monitoring_apps/pages/laporan_page.dart';
 import 'package:monitoring_apps/pages/laporan_stock/laporan_stock_utama.dart';
 import 'package:monitoring_apps/pages/login_page.dart';
 import 'package:monitoring_apps/provider/monitoring_provider.dart';
-import 'package:monitoring_apps/utils/user_repository.dart';
+import 'package:monitoring_apps/utils/user_repository.dart' show UserRepository;
 import 'package:monitoring_apps/widget/GroupedBarChart.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 
@@ -23,40 +23,42 @@ class _MainPageState extends State<MainPage>
 {
 
 
-  List<List<double>> charts=[[0.1000]];
+  List<List<double>> charts=[[0.0,0.1000]];
   static final List<String> chartDropdownItems = ['Semua Periode','Bulan ini'];
   String actualDropdown = chartDropdownItems[0];
   int actualChart = 0;
-  String omzet="0";
+  String penjualan="0";
+  String transaksi="0";
+  String netSales="0";
   String avg="0";
-  String mem="0";
-  String pen="0";
   var result = MonitoringProvider().getDashboard();
-  
+
   @override
   void initState() {
-    super.initState();
-    OneSignal.shared.setInFocusDisplayType(OSNotificationDisplayType.notification);
-    var settings = {
-      OSiOSSettings.autoPrompt: false,
-      OSiOSSettings.promptBeforeOpeningPushUrl: true
-    };
-    OneSignal.shared.init("9a74b710-c5f3-441c-b3d5-de924945e5f9", iOSSettings: settings);
-    OneSignal.shared.setNotificationOpenedHandler((notification) {
+      super.initState();
+      OneSignal.shared.setInFocusDisplayType(OSNotificationDisplayType.notification);
+      var settings = {
+        OSiOSSettings.autoPrompt: false,
+        OSiOSSettings.promptBeforeOpeningPushUrl: true
+      };
+      OneSignal.shared.init("9a74b710-c5f3-441c-b3d5-de924945e5f9", iOSSettings: settings);
+      OneSignal.shared.setNotificationOpenedHandler((notification) {
       // var notify = notification.notification.payload.additionalData;
-    });
-    result.then((val){
-      omzet=val.omset;
-      avg=val.avg;
-      mem=val.member;
-      pen=val.orders;
-      final input =val.charts.replaceAll('"', '');
-      var cht = jsonDecode(input);
-      charts=List<List<double>>.from(cht.map((x) => List<double>.from(x.map((x) => x.toDouble()))));
+  });
+  
+  result.then((val){
+      penjualan=val.result.penjualan;
+      transaksi=val.result.transaksi;
+      netSales=val.result.netSales;
+      avg=val.result.avg;
+      final hourly =jsonDecode(val.result.hourly);
+      charts=List<List<double>>.from(hourly.map((x) => List<double>.from(x.map((x) => x.toDouble()))));
+      // charts=hourly.cast<List<double>>();
       setState(() {});
     });
 
   }
+
   @override
   Widget build(BuildContext context)
   {
@@ -69,7 +71,7 @@ class _MainPageState extends State<MainPage>
             automaticallyImplyLeading: false, // Used for removing back buttoon. 
             elevation: 2.0,
             backgroundColor: Colors.white,
-            title: Text('Monitoring E-commerce', style: TextStyle(fontFamily:'Rubik',color: Colors.black, fontWeight: FontWeight.w600, fontSize: 23.0)),
+            title: Text('Monitoring [Nama Toko]', style: TextStyle(fontFamily:'Rubik',color: Colors.black, fontWeight: FontWeight.w600, fontSize: 23.0)),
             actions: <Widget>
             [
               PopupMenuButton<String>(
@@ -112,7 +114,7 @@ class _MainPageState extends State<MainPage>
                         children: <Widget>
                         [
                           Text('Gross Sales', style: TextStyle(color: Colors.blueAccent)),
-                          Text('$mem', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w700, fontSize: 34.0))
+                          Text('$penjualan', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w700, fontSize: 34.0))
                         ],
                       ),
                       Material
@@ -155,7 +157,7 @@ class _MainPageState extends State<MainPage>
                       ),
                       Padding(padding: EdgeInsets.only(bottom: 16.0)),
                       Text('Transaction', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w700, fontSize: 24.0)),
-                      Text('$pen', style: TextStyle(color: Colors.black45, fontSize: 18.0)),
+                      Text('$transaksi', style: TextStyle(color: Colors.black45, fontSize: 18.0)),
                     ]
                   ),
                 ),
@@ -183,7 +185,7 @@ class _MainPageState extends State<MainPage>
                       ),
                       Padding(padding: EdgeInsets.only(bottom: 16.0)),
                       Text('Net Sales', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w700, fontSize: 24.0)),
-                      Text('$avg', style: TextStyle(color: Colors.black45, fontSize: 18.0)),
+                      Text('$netSales', style: TextStyle(color: Colors.black45, fontSize: 18.0)),
                     ]
                   ),
                 ),
@@ -211,28 +213,9 @@ class _MainPageState extends State<MainPage>
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: <Widget>
                                 [
-                                  Text('Hourly Gross Sales Amount', style: TextStyle(fontFamily:'Rubik',color: Colors.green)),
-                                  Text('$omzet', style: TextStyle(fontFamily:'Rubik',color: Colors.black, fontWeight: FontWeight.w700, fontSize: 25.0)),
+                                  Text('Hourly Gross Sales Amount', style: TextStyle(fontFamily:'Rubik',color: Colors.green, fontWeight: FontWeight.w700, fontSize: 18.0)),
                                 ],
                               ),
-                              DropdownButton
-                              (
-                                isDense: true,
-                                value: actualDropdown,
-                                onChanged: (String value) => setState(()
-                                {
-                                  actualDropdown = value;
-                                  actualChart = chartDropdownItems.indexOf(value);
-                                }),
-                                items: chartDropdownItems.map((String title)
-                                {
-                                  return DropdownMenuItem
-                                  (
-                                    value: title,
-                                    child: Text(title, style: TextStyle(fontFamily:'Rubik',color: Colors.blue, fontWeight: FontWeight.w400, fontSize: 14.0)),
-                                  );
-                                }).toList()
-                              )
                             ],
                           ),
                           Padding(padding: EdgeInsets.only(bottom: 4.0)),
@@ -279,7 +262,7 @@ class _MainPageState extends State<MainPage>
                         children: <Widget>
                         [
                           Text('Average Per-Transaction', style: TextStyle(color: Colors.blueAccent)),
-                          Text('$mem', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w700, fontSize: 34.0))
+                          Text('$avg', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w700, fontSize: 34.0))
                         ],
                       ),
                     ]

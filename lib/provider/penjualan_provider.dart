@@ -5,7 +5,7 @@ import 'package:monitoring_apps/model/laporanPenjualan.dart';
 import 'package:monitoring_apps/model/laporanPenjualanDetail.dart';
 
 class PenjualanProvider {
-  String url ="http://192.168.100.10:3000/";
+  String url ="http://192.168.100.71:3000/";
   Client client = Client();
   Map<String, String> get headers => {
         "Content-Type": "application/json",
