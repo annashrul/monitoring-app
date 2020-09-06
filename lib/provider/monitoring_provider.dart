@@ -15,7 +15,7 @@ class MonitoringProvider {
     //   return monitoringFromJson(response.body);
     // });
 
-    final response =await client.get("http://192.168.100.71:3000/site/monitoring");
+    final response =await client.get("http://ptnetindo.com:6692/site/monitoring");
       print(response.body);
     if (response.statusCode == 200) {
       return monitoringFromJson(response.body);
