@@ -34,15 +34,13 @@ class UserRepository {
       return false;
     }
   }
-  Future<bool> isServerAddress() async {
+
+  Future<String> isServerAddress() async {
     /// read from keystore/keychain
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String serverAddress = prefs.getString('serverAddress');
-    if(serverAddress!=null){
-      return true;
-    }else{
-      return false;
-    }
+    return serverAddress;
+
   }
   Future<bool> check() async {
     var connectivityResult = await (Connectivity().checkConnectivity());

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:monitoring_apps/pages/helper/helper_widget.dart';
 import 'package:monitoring_apps/pages/main_page.dart';
 import 'package:monitoring_apps/provider/monitoring_provider.dart';

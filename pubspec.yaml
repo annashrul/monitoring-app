@@ -31,6 +31,8 @@ dependencies:
   fluttertoast: ^3.1.3
   flutter_cupertino_date_picker:
   connectivity:
+  charts_flutter: ^0.9.0
+
 
 dev_dependencies:
   flutter_test:
@@ -61,5 +63,5 @@ flutter:
   fonts:
     - family: Rubik
       fonts:
-        - asset: res/fonts/Rubik/Rubik-Light.ttf
+        - asset: res/fonts/rubik/Rubik-Light.ttf
 

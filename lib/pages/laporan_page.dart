@@ -18,6 +18,9 @@ class _LaporanPageState extends State<LaporanPage>
   }
   @override
   Widget build(BuildContext context){
+  final List<String> chartDropdownItems = ["LK/0001","LK/0002"];
+  String actualDropdown = chartDropdownItems[0];
+
     return Scaffold(
       appBar: AppBar(
         elevation: 0.0,
@@ -33,25 +36,58 @@ class _LaporanPageState extends State<LaporanPage>
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: FutureBuilder(
-          future: getData(perpage),
-          builder: (BuildContext context, AsyncSnapshot snapshot) {
-            print(snapshot);
-            switch (snapshot.connectionState) {
-              case ConnectionState.none:
-              case ConnectionState.waiting:
-                return  Align(alignment: Alignment.center,
-                  child:  CircularProgressIndicator(valueColor: AlwaysStoppedAnimation(Colors.lightBlue
-                  ) ,),);
-              default:
-                if (snapshot.hasError){
-                  print(snapshot.data);
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text("Lokasi: ",style: TextStyle(color: Colors.black, fontWeight: FontWeight.w400, fontSize: 20.0)),
+                Container(
+                  child: DropdownButton
+                                  (
+                                    isDense: true,
+                                    value: actualDropdown,
+                                    onChanged: (String value) => setState(()
+                                    {
+                                      actualDropdown = value;
+                                      // actualChart = chartDropdownItems.indexOf(value);
+                                      // print("XXXXXXXXXXXXXXXXXXXXXXXXX "+actualChart.toString()); // Refresh the chart
+                                    }),
+                                    items: chartDropdownItems.map((String title)
+                                    {
+                                      return DropdownMenuItem
+                                      (
+                                        value: title,
+                                        child: Text(title, style: TextStyle(color: Colors.black, fontWeight: FontWeight.w400, fontSize: 20.0)),
+                                      );
+                                    }).toList()
+                                  )
+                ),
+              ],
+            ),
+            Expanded(
+              child: FutureBuilder(
+                future: getData(perpage),
+                builder: (BuildContext context, AsyncSnapshot snapshot) {
+                  switch (snapshot.connectionState) {
+                    case ConnectionState.none:
+                    case ConnectionState.waiting:
+                      return  Align(alignment: Alignment.center,
+                        child:  CircularProgressIndicator(valueColor: AlwaysStoppedAnimation(Colors.lightBlue
+                        ) ,),);
+                    default:
+                      if (snapshot.hasError){
+                        print(snapshot.data);
 
-                  return new Text('Error: ${snapshot.error}');
-               } else
-                  return _buildItem(context, snapshot);
-            }
-          },
+                        return new Text('Error: ${snapshot.error}');
+                     } else
+                        return _buildItem(context, snapshot);
+                  }
+                },
+              ),
+            ),
+          ],
         ),
       ),
     );

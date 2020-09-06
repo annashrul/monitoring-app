@@ -1,8 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
-
-import 'package:connectivity/connectivity.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:monitoring_apps/model/laporan_stock/laporanStockUtamaModel.dart';
@@ -22,7 +19,7 @@ class _LaporanStockUtamaState extends State<LaporanStockUtama> {
   LaporanStockUtamaModel laporanStockUtamaModel;
   bool isLoading=false,isRetry=false,isConnected=false;
   final GlobalKey<RefreshIndicatorState> _refresh = GlobalKey<RefreshIndicatorState>();
-
+  final userRepository = UserRepository();
 
   Map<String, String> get headers => {
     "Content-Type": "application/json",
@@ -30,13 +27,10 @@ class _LaporanStockUtamaState extends State<LaporanStockUtama> {
     "password": "\$2b\$08\$hLMU6rEvNILCMaQbthARK.iCmDRO7jNbUB8CcvyRStqsHD4UQxjDO",
     "Authorization": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxIiwiaWF0IjoxNTk3MTM0NzM3LCJleHAiOjE1OTk3MjY3Mzd9.Dy6OCNL9BhUgUTPcQMlEXTbw5Dyv3UnG_Kyvs3WHicE",
   };
-  // String url ="http://192.168.100.10:3000/";
-  String url ="http://mitrasarana.ptnetindo.com:6694/";
   String datefrom='2020-01-01';
   String dateto='2020-09-04';
   Future<void> loadData() async{
-
-    final userRepository = UserRepository();
+    final url = await userRepository.isServerAddress();
     try{
       setState(() {
         isLoading = true;
@@ -51,12 +45,10 @@ class _LaporanStockUtamaState extends State<LaporanStockUtama> {
           isLoading = false;
           isRetry = false;
         });
-
       } else {
         throw Exception('Failed to load photos');
       }
     }catch(e){
-      print('abus kadie');
       setState(() {
         isLoading = false;
         isConnected = false;
@@ -80,8 +72,8 @@ class _LaporanStockUtamaState extends State<LaporanStockUtama> {
   TextEditingController _tgl_pertama = TextEditingController();
   TextEditingController _tgl_kedua = TextEditingController();
   DateTime _dateTime;
-  String _valType ='whatsapp';  //Ini untuk menyimpan value data friend
-  List _type = ["whatsapp", "sms"];  //Array My Friend
+  String _valType ='LK/0001';
+  List _type = ["LK/0001","LK/0002"];
   String _radioValue2 = 'whatsapp';
   void _handleRadioValueChange2(String value) {
     _radioValue2 = value;

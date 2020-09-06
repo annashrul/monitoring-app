@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:monitoring_apps/model/laporanPenjualan.dart';
 import 'package:monitoring_apps/model/laporanPenjualanDetail.dart';
 import 'package:monitoring_apps/provider/penjualan_provider.dart';
 
+// ignore: must_be_immutable
 class LaporanPageDetail extends StatefulWidget
 {
   String nota;
@@ -29,7 +29,7 @@ class _LaporanPageDetailState extends State<LaporanPageDetail>
           onPressed: () => Navigator.of(context).pop(),
           icon: Icon(Icons.arrow_back, color: Colors.black),
         ),
-        title: Text('Laporan Penjualan', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w700)),
+        title: Text('Detail Laporan Penjualan', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w700)),
 
       ),
       body: Padding(
@@ -65,25 +65,37 @@ class _LaporanPageDetailState extends State<LaporanPageDetail>
         Row(
           children: <Widget>[
             Text("Kode Transaksi: ", style: TextStyle(fontSize: 18.0,)),
-            Text(values.kdTrx, style: TextStyle(fontSize: 18.0,)),
+            Container(
+                margin: EdgeInsets.all(2.0),
+                child: Text('${values.kdTrx}', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w700, fontSize: 18.0)),
+              ),
           ]
         ),
         Row(
           children: <Widget>[
             Text("Operator: ", style: TextStyle(fontSize: 18.0,)),
-            Text(values.resultOperator, style: TextStyle(fontSize: 18.0,)),
+            Container(
+                margin: EdgeInsets.all(2.0),
+                child: Text('${values.resultOperator}', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w700, fontSize: 18.0)),
+              ),
           ]
         ),
         Row(
           children: <Widget>[
             Text("Lokasi: ", style: TextStyle(fontSize: 18.0,)),
-            Text(values.lokasi, style: TextStyle(fontSize: 18.0,)),
+            Container(
+                margin: EdgeInsets.all(2.0),
+                child: Text('${values.lokasi}', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w700, fontSize: 18.0)),
+              ),
           ]
         ),
         Row(
           children: <Widget>[
             Text("Tanggal Transaksi: ", style: TextStyle(fontSize: 18.0,)),
-            Text('${values.tgl}', style: TextStyle(fontSize: 18.0,)),
+            Container(
+                margin: EdgeInsets.all(2.0),
+                child: Text('${values.tgl}', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w700, fontSize: 18.0)),
+              ),
           ]
         ),
         new Expanded(
@@ -91,18 +103,19 @@ class _LaporanPageDetailState extends State<LaporanPageDetail>
             itemCount: details.length,
             itemBuilder: (context, i) {
               return Padding(
-                    padding: EdgeInsets.only(bottom: 16.0),
+                    padding: EdgeInsets.only(left:10.0,right:10.0,bottom: 5.0),
                     child: Align
                     (
                       alignment: Alignment.topCenter,
                       child: SizedBox.fromSize
                       (
-                        size: Size.fromHeight(100.0),
+                        size: Size.fromHeight(160),
                         child: Stack
                         (
                           fit: StackFit.expand,
                           children: <Widget>
                           [
+                            
                             /// Item description inside a material
                             Container
                             (
@@ -123,14 +136,75 @@ class _LaporanPageDetailState extends State<LaporanPageDetail>
                                     children: <Widget>
                                     [
                                       /// Title and rating
-                                      Column
-                                      (
-                                        mainAxisAlignment: MainAxisAlignment.start,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        
-                                        children: <Widget>
-                                        [
-                                          
+                                      Row(
+                                        children: [
+                                          Container(
+                                          margin:EdgeInsets.only(right:20.0),
+                                        child: Image.network(
+                                          details[i].gambar,
+                                          width: 90.0,
+                                        )
+
+                                      ),
+                                          Column
+                                          (
+                                            mainAxisAlignment: MainAxisAlignment.start,
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            
+                                            children: <Widget>
+                                            [
+                                              Container(
+                                                margin: EdgeInsets.all(2.0),
+                                                    child: Text('${details[i].sku}', style: TextStyle(color: Colors.blueAccent, fontWeight: FontWeight.w700, fontSize: 13.0
+                                                    )),
+                                                  ),
+                                                Container(
+                                                margin: EdgeInsets.all(2.0),
+
+                                                    child: Text('${details[i].nmBrg}', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w700, fontSize: 18.0
+                                                    )),
+                                                  ),
+                                              
+                                               Row(
+                                                 children: [
+                                                   Column
+                                                   (
+                                                     mainAxisAlignment: MainAxisAlignment.start,
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                     children: [
+                                                       Container(
+                                                        margin: EdgeInsets.all(2.0),
+
+                                                            child: Text('Harga Jual: ${details[i].hrgJual}', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w700, fontSize: 13.0)),
+                                                          ),
+                                                          Container(
+                                                    margin: EdgeInsets.all(2.0),
+
+                                                        child: Text('Diskon: ${details[i].disPersen}', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w700, fontSize: 13.0)),
+                                                      ),
+                                                     ],
+                                                   ),
+                                              Column
+                                              (
+                                                mainAxisAlignment: MainAxisAlignment.start,
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  Container(
+                                                    margin: EdgeInsets.all(2.0),
+
+                                                        child: Text('Qty: ${details[i].qty} ${details[i].satuan}', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w700, fontSize: 13.0)),
+                                                      ),
+                                              Container(
+                                                margin: EdgeInsets.all(2.0),
+
+                                                    child: Text('Subtotal: ${details[i].subtotal}', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w700, fontSize: 13.0)),
+                                                  ),
+                                                ],
+                                              ),
+                                                 ],
+                                               ),
+                                            ],
+                                          ),
                                         ],
                                       ),
                                      
