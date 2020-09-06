@@ -1,6 +1,8 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:monitoring_apps/model/laporan.dart';
-import 'package:monitoring_apps/provider/monitoring_provider.dart';
+import 'package:monitoring_apps/model/laporanPenjualan.dart';
+import 'package:monitoring_apps/pages/laporan_page_detail.dart';
+import 'package:monitoring_apps/provider/penjualan_provider.dart';
 
 class LaporanPage extends StatefulWidget
 {
@@ -10,12 +12,15 @@ class LaporanPage extends StatefulWidget
 
 class _LaporanPageState extends State<LaporanPage>
 {
-  int perpage=3;
-  Future<List<Laporan>> getData(int limit) async {
-    return await MonitoringProvider().getLaporan(limit);
+  var perpage=3;
+  Future<LaporanPenjualan> getData(var limit) async {
+    return await PenjualanProvider().getLaporan(limit,'2020-01-01','2020-09-04');
   }
   @override
   Widget build(BuildContext context){
+  final List<String> chartDropdownItems = ["LK/0001","LK/0002"];
+  String actualDropdown = chartDropdownItems[0];
+
     return Scaffold(
       appBar: AppBar(
         elevation: 0.0,
@@ -29,37 +34,68 @@ class _LaporanPageState extends State<LaporanPage>
         title: Text('Laporan Penjualan', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w700)),
 
       ),
-      body: FutureBuilder(
-        future: getData(perpage),
-        builder: (BuildContext context, AsyncSnapshot snapshot) {
-          switch (snapshot.connectionState) {
-            case ConnectionState.none:
-            case ConnectionState.waiting:
-              return  Align(alignment: Alignment.center,
-                child:  CircularProgressIndicator(valueColor: AlwaysStoppedAnimation(Colors.lightBlue
-                ) ,),);
-            default:
-              if (snapshot.hasError)
-                return new Text('Error: ${snapshot.error}');
-              else
-                return _buildItem(context, snapshot);
-          }
-        },
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text("Lokasi: ",style: TextStyle(color: Colors.black, fontWeight: FontWeight.w400, fontSize: 20.0)),
+                Container(
+                  child: DropdownButton
+                                  (
+                                    isDense: true,
+                                    value: actualDropdown,
+                                    onChanged: (String value) => setState(()
+                                    {
+                                      actualDropdown = value;
+                                      // actualChart = chartDropdownItems.indexOf(value);
+                                      // print("XXXXXXXXXXXXXXXXXXXXXXXXX "+actualChart.toString()); // Refresh the chart
+                                    }),
+                                    items: chartDropdownItems.map((String title)
+                                    {
+                                      return DropdownMenuItem
+                                      (
+                                        value: title,
+                                        child: Text(title, style: TextStyle(color: Colors.black, fontWeight: FontWeight.w400, fontSize: 20.0)),
+                                      );
+                                    }).toList()
+                                  )
+                ),
+              ],
+            ),
+            Expanded(
+              child: FutureBuilder(
+                future: getData(perpage),
+                builder: (BuildContext context, AsyncSnapshot snapshot) {
+                  switch (snapshot.connectionState) {
+                    case ConnectionState.none:
+                    case ConnectionState.waiting:
+                      return  Align(alignment: Alignment.center,
+                        child:  CircularProgressIndicator(valueColor: AlwaysStoppedAnimation(Colors.lightBlue
+                        ) ,),);
+                    default:
+                      if (snapshot.hasError){
+                        print(snapshot.data);
+
+                        return new Text('Error: ${snapshot.error}');
+                     } else
+                        return _buildItem(context, snapshot);
+                  }
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
-// ListView
-//       (
-//         scrollDirection: Axis.vertical,
-//         padding: EdgeInsets.symmetric(horizontal: 16.0),
-//         children: <Widget>
-//         [
-//           _buildItem()
-//         ],
-//       )
-//     );
+
   Widget _buildItem(BuildContext context, AsyncSnapshot snap){
-    var values = snap.data;
+    var values = snap.data.result.data;
+    print(snap.data);
     return ListView.builder(
         itemCount: values.length+1,
         itemBuilder: (BuildContext context, int index) {
@@ -75,7 +111,8 @@ class _LaporanPageState extends State<LaporanPage>
                       });
                     },
                 ),
-            ):Padding(
+            ):GestureDetector(
+                child:Padding(
                     padding: EdgeInsets.only(bottom: 16.0),
                     child: Align
                     (
@@ -115,7 +152,7 @@ class _LaporanPageState extends State<LaporanPage>
                                         
                                         children: <Widget>
                                         [
-                                          Text('${values[index].idOrders}', style: TextStyle(color: Colors.blueAccent)),
+                                          Text('${values[index].kdTrx} (${values[index].jenisTrx})', style: TextStyle(color: Colors.blueAccent)),
                                           Column
                                           (
                                             mainAxisAlignment: MainAxisAlignment.start,
@@ -129,22 +166,16 @@ class _LaporanPageState extends State<LaporanPage>
                                               
                                               Container(
                                                 margin: const EdgeInsets.only(top: 2.0),
-                                                child: Text('${values[index].item} item', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500, fontSize: 17.0)),
+                                                child: Text('${values[index].lokasi}', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500, fontSize: 17.0)),
                                               ),
                                               Container(
                                                 margin: const EdgeInsets.only(top: 0.0),
-                                                child: Text('${values[index].kurir}', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500, fontSize: 15.0)),
+                                                child: Text('${values[index].tgl}', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500, fontSize: 15.0)),
                                               ),
                                               Container(
                                                 margin: const EdgeInsets.only(top: 4.0),
-                                                child: Text('Subtotal: ${values[index].subTotal}0', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500, fontSize: 15.0)),
+                                                child: Text('Subtotal: ${values[index].st}0', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500, fontSize: 15.0)),
                                               ),
-                                              Container(
-                                                margin: const EdgeInsets.only(top: 4.0),
-                                                child: Text('Ongkir:${values[index].ongkir}', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500, fontSize: 15.0)),
-                                              ),
-                                            
-                                              
                                             ],
                                           ),
                                         ],
@@ -162,12 +193,9 @@ class _LaporanPageState extends State<LaporanPage>
                                             crossAxisAlignment: CrossAxisAlignment.center,
                                             children: <Widget>
                                             [
-                                              Text('Total:', style: TextStyle()),
-                                              Padding
-                                              (
-                                                padding: EdgeInsets.symmetric(horizontal: 4.0),
-                                                child: Text('${values[index].total}', style: TextStyle(fontWeight: FontWeight.w700)),
-                                              ),
+                                              Text('Total: ', style: TextStyle()),
+                                              Text(values[index].gt, style: TextStyle()),
+                                             
                                             ]
                                           ),
                                           
@@ -227,7 +255,9 @@ class _LaporanPageState extends State<LaporanPage>
                         )
                       ),
                     ),
-                  );
+                  ),
+                  onTap: () => Navigator.of(context).push(new CupertinoPageRoute(builder: (_) =>  LaporanPageDetail('${values[index].kdTrx}')))
+              );
             },
     );
   }
