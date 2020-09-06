@@ -1,12 +1,12 @@
 // To parse this JSON data, do
 //
-//     final laporanStockUtamaModel = laporanStockUtamaModelFromJson(jsonString);
+//     final laporan = laporanFromJson(jsonString);
 
 import 'dart:convert';
 
-LaporanStockUtamaModel laporanStockUtamaModelFromJson(String str) => LaporanStockUtamaModel.fromJson(json.decode(str));
+LaporanStockUtamaModel laporanFromJson(String str) => LaporanStockUtamaModel.fromJson(json.decode(str));
 
-String laporanStockUtamaModelToJson(LaporanStockUtamaModel data) => json.encode(data.toJson());
+String laporanToJson(LaporanStockUtamaModel data) => json.encode(data.toJson());
 
 class LaporanStockUtamaModel {
   LaporanStockUtamaModel({
@@ -31,7 +31,6 @@ class LaporanStockUtamaModel {
     "status": status,
   };
 }
-
 class Result {
   Result({
     this.total,
@@ -45,13 +44,13 @@ class Result {
     this.totalStock,
   });
 
-  var total;
-  var perPage;
-  var offset;
-  var to;
-  var lastPage;
-  var currentPage;
-  var from;
+  int total;
+  int perPage;
+  int offset;
+  int to;
+  int lastPage;
+  int currentPage;
+  int from;
   List<Datum> data;
   TotalStock totalStock;
 
