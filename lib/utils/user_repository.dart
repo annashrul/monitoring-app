@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:connectivity/connectivity.dart';
 import 'package:meta/meta.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -7,7 +8,6 @@ class UserRepository {
 
   Future<String> setLogin({
     @required String islogin,
-
   }) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString('token', islogin);
@@ -34,4 +34,24 @@ class UserRepository {
       return false;
     }
   }
+  Future<bool> isServerAddress() async {
+    /// read from keystore/keychain
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String serverAddress = prefs.getString('serverAddress');
+    if(serverAddress!=null){
+      return true;
+    }else{
+      return false;
+    }
+  }
+  Future<bool> check() async {
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.mobile) {
+      return true;
+    } else if (connectivityResult == ConnectivityResult.wifi) {
+      return true;
+    }
+    return false;
+  }
+
 }

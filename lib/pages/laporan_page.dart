@@ -59,6 +59,7 @@ class _LaporanPageState extends State<LaporanPage>
 
   Widget _buildItem(BuildContext context, AsyncSnapshot snap){
     var values = snap.data.result.data;
+    print(snap.data);
     return ListView.builder(
         itemCount: values.length+1,
         itemBuilder: (BuildContext context, int index) {

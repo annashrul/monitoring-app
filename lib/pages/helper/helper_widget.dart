@@ -2,8 +2,46 @@ import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_cupertino_date_picker/flutter_cupertino_date_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HelperWidget{
+  /// Display date picker.
+  Future showDatePickerQ(BuildContext context,tanggal) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String _format = 'yyyy-MM-dd';
+    const String MIN_DATETIME = '2010-05-12';
+    const String MAX_DATETIME = '2021-11-25';
+    const String INIT_DATETIME = '2019-05-17';
+    DateTime _dateTime = DateTime.parse(INIT_DATETIME);
+    DateTimePickerLocale _locale = DateTimePickerLocale.id;
+    DatePicker.showDatePicker(
+      context,
+      onMonthChangeStartWithFirstDate: true,
+      pickerTheme: DateTimePickerTheme(
+        showTitle: true,
+        confirm: Text('custom Done', style: TextStyle(color: Colors.red)),
+      ),
+      minDateTime: DateTime.parse(MIN_DATETIME),
+      maxDateTime: DateTime.parse(MAX_DATETIME),
+      initialDateTime: _dateTime,
+      dateFormat: _format,
+      locale: _locale,
+      onClose: () => print("----- onClose -----"),
+      onCancel: () => print('onCancel'),
+      onChange: (dateTime, List<int> index) {
+        _dateTime = dateTime;
+      },
+      onConfirm: (dateTime, List<int> index) {
+        _dateTime = dateTime;
+        String tgl = '${_dateTime.year}-${_dateTime.month.toString().padLeft(2, '0')}-${_dateTime.day.toString().padLeft(2, '0')}';
+        prefs.setString('tanggal1',tgl);
+        tanggal = tgl;
+      },
+    );
+    return tanggal;
+  }
+
   defaultFont(BuildContext context){
     return TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black,fontFamily: 'Rubik');
   }
@@ -155,4 +193,34 @@ class ClipPainter extends CustomClipper<Path>{
   }
 
 
+}
+
+class NoConnectionWidget extends StatefulWidget {
+  @override
+  _NoConnectionWidgetState createState() => _NoConnectionWidgetState();
+}
+
+class _NoConnectionWidgetState extends State<NoConnectionWidget> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Container(
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Center(
+                child: Image.asset('res/no_internet.jpg',height: 100),
+              ),
+              SizedBox(height: 20.0),
+              Center(
+                child: Text("Tidak Ada Koneksi Internet",style: TextStyle(fontFamily: 'Rubik',fontWeight: FontWeight.bold)),
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }

@@ -56,17 +56,21 @@ class _LoginPageState extends State<LoginPage> {
       setState(() {
         isServer=false;
       });
-      print("### SERVER ADDRESS RUNNING ON = ${prefs.getString('serverAddress')}");
+      print("SERVER ADDRESS RUNNING ON = ${prefs.getString('serverAddress')}");
     }
   }
 
-
-
+  bool checkServer=false;
+  
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    isServer=true;
+    UserRepository().isServerAddress().then((val){
+      print("IS SERVER $val");
+      checkServer = false;
+      setState(() {});
+    });
   }
 
 
@@ -104,40 +108,7 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     SizedBox(height: 50,),
-                    isServer?Column(
-                      children: <Widget>[
-                        HelperWidget().entryField(
-                            context,
-                            TextInputAction.done, () {},
-                            serverAddressController,
-                            serverAddressFocus,
-                            "Server Address",
-                            Icon(Icons.link),
-                            isPassword: false
-                        )
-                      ],
-                    ):Column(
-                      children: <Widget>[
-                        HelperWidget().entryField(
-                            context,
-                            TextInputAction.next,
-                                () {HelperWidget().fieldFocusChange(context, usernameFocus, passwordFocus);},
-                            usernameController,
-                            usernameFocus,
-                            "Username",
-                            Icon(Icons.person_pin)
-                        ),
-                        HelperWidget().entryField(
-                            context,
-                            TextInputAction.done, () {},
-                            passwordController,
-                            passwordFocus,
-                            "Password",
-                            Icon(Icons.lock),
-                            isPassword: true
-                        )
-                      ],
-                    ),
+                    checkServer!=true?isServer?authServerAddress(context):authPages(context):authPages(context),
                     SizedBox(height: 20,),
                     InkWell(
                       onTap: () {
@@ -195,6 +166,46 @@ class _LoginPageState extends State<LoginPage> {
         ],
       ),
     )) ?? false;
+  }
+  
+  Widget authPages(BuildContext context){
+    return Column(
+      children: <Widget>[
+        HelperWidget().entryField(
+            context,
+            TextInputAction.next,
+                () {HelperWidget().fieldFocusChange(context, usernameFocus, passwordFocus);},
+            usernameController,
+            usernameFocus,
+            "Username",
+            Icon(Icons.person_pin)
+        ),
+        HelperWidget().entryField(
+            context,
+            TextInputAction.done, () {},
+            passwordController,
+            passwordFocus,
+            "Password",
+            Icon(Icons.lock),
+            isPassword: true
+        )
+      ],
+    );
+  }
+  Widget authServerAddress(BuildContext context){
+    return Column(
+      children: <Widget>[
+        HelperWidget().entryField(
+            context,
+            TextInputAction.done, () {},
+            serverAddressController,
+            serverAddressFocus,
+            "Server Address",
+            Icon(Icons.link),
+            isPassword: false
+        )
+      ],
+    );
   }
 }
 

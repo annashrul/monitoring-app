@@ -3,7 +3,9 @@ import 'package:monitoring_apps/pages/login_page.dart';
 import 'package:monitoring_apps/pages/main_page.dart';
 import 'package:monitoring_apps/utils/user_repository.dart';
 
-void main() => runApp(MyApp());
+void main(){
+  runApp(MyApp());
+}
 
 
 
@@ -15,6 +17,7 @@ class MyApp extends StatefulWidget
 
 class _MyAppState extends State<MyApp>
 {
+
   bool hasToken = false;
   @override
   void initState() {
@@ -23,10 +26,14 @@ class _MyAppState extends State<MyApp>
       hasToken =val;
       setState(() {});
     });
-     print(hasToken);
-  } 
+  }
+  @override
+  void dispose() {
+    super.dispose();
+  }
   @override
   Widget build(BuildContext context){
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Dashboard',
@@ -36,3 +43,4 @@ class _MyAppState extends State<MyApp>
   }
   
 }
+

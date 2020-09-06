@@ -34,7 +34,8 @@ class MonitoringProvider {
   Future<Auth> login(String username, String password) async{
     final prefs = await SharedPreferences.getInstance();
     final url = prefs.getString("serverAddress");
-    return await client.post("$url/login_monitoring",
+    print("RUNNING SERVER ON http://$url/login_monitoring");
+    return await client.post("http://$url/login_monitoring",
       body: {
       'username': '$username',
       'password': '$password',

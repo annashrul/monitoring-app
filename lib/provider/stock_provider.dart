@@ -13,10 +13,11 @@ class StockProvider {
   };
 
   Future<LaporanStockUtamaModel> getLaporanStock(var limit, String datefrom, String dateto) async {
-    final response =await client.get(url+"report/stock?page=1?page=1&datefrom=$datefrom&dateto=$dateto&limit=$limit", headers: headers);
+    print("report/stock?page=1?page=1&datefrom=$datefrom&dateto=$dateto&perpage=$limit");
+    final response =await client.get(url+"report/stock?page=1?page=1&datefrom=$datefrom&dateto=$dateto&perpage=$limit", headers: headers);
     print("############ RESPON STOCK ${response.body}");
     if (response.statusCode == 200) {
-      return laporanStockUtamaModelFromJson(response.body);
+      return laporanFromJson(response.body);
     } else {
       // If that call was not successful, throw an error.
       throw Exception('Failed to load product');

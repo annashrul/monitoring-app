@@ -16,6 +16,7 @@ class PenjualanProvider {
 
   Future<LaporanPenjualan> getLaporan(var limit, String datefrom, String dateto) async {
     final response =await client.get(url+"report/arsip_penjualan?page=1&datefrom=$datefrom&dateto=$dateto&limit=$limit", headers: headers);
+    print("####### RESPON LAPORAN PENJUALAN ${response.body}");
     if (response.statusCode == 200) {
       return laporanFromJson(response.body);
     } else {
