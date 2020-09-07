@@ -66,7 +66,16 @@ class _MainPageState extends State<MainPage> {
       final hourly = jsonDecode(val.result.hourly);
       charts = List<List<double>>.from(
           hourly.map((x) => List<double>.from(x.map((x) => x.toDouble()))));
-      monthlyData = val.result.monthly;
+
+      if(val.result.monthly.labelLokasi!=null){
+        monthlyData = val.result.monthly;
+        print("LABEL LOKASI TIDAK NULL");
+      }
+      else{
+        print("LABEL LOKASI NULL");
+      }
+
+
       // charts=hourly.cast<List<double>>();
       setState(() {});
     });
