@@ -70,6 +70,7 @@ class _LoginPageState extends State<LoginPage> {
           prefs.setString(
               'serverAddress', 'http://' + serverAddressController.text);
           setState(() {
+            checkServer = true;
             isServer = false;
           });
         } else {
@@ -143,7 +144,7 @@ class _LoginPageState extends State<LoginPage> {
                   height: 50,
                 ),
                 checkServer != true
-                    ? isServer ? authServerAddress(context) : authPages(context)
+                    ? authServerAddress(context)
                     : authPages(context),
                 SizedBox(
                   height: 20,
