@@ -8,6 +8,13 @@ import 'package:monitoring_apps/utils/user_repository.dart';
 class MonitoringProvider {
   Client client = Client();
   final userRepository = UserRepository();
+  Map<String, String> get headers => {
+        "Content-Type": "application/json",
+        "username": "netindo",
+        "password":
+            "\$2b\$08\$hLMU6rEvNILCMaQbthARK.iCmDRO7jNbUB8CcvyRStqsHD4UQxjDO",
+        // "Authorization": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxIiwiaWF0IjoxNTk3MTM0NzM3LCJleHAiOjE1OTk3MjY3Mzd9.Dy6OCNL9BhUgUTPcQMlEXTbw5Dyv3UnG_Kyvs3WHicE",
+      };
   Future<Monitoring> getDashboard() async {
     final url = "http://192.168.100.10:3000";
     // final url = await userRepository.isServerAddress();
@@ -21,9 +28,15 @@ class MonitoringProvider {
 
   Future<Auth> login(String username, String password) async {
     final url = await userRepository.isServerAddress();
-    return await client.post("$url/api/login_monitoring", body: {
+    return await client.post("$url/auth", headers: {
+      'username': 'netindo',
+      'password':
+          "\$2b\$08\$hLMU6rEvNILCMaQbthARK.iCmDRO7jNbUB8CcvyRStqsHD4UQxjDO"
+    }, body: {
       'username': '$username',
       'password': '$password',
+      'kassa': '',
+      'lokasi': ''
     }).then((Response response) {
       var results = Auth.fromJson(json.decode(response.body));
       return results;

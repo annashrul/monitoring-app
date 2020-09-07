@@ -32,6 +32,7 @@ class _MainPageState extends State<MainPage> {
   String netSales = "0";
   String avg = "0";
   Monthly monthlyData;
+  String nama = 'Netindo';
   var result = MonitoringProvider().getDashboard();
   DateTimePickerLocale _locale = DateTimePickerLocale.id;
   List<DateTimePickerLocale> _locales = DateTimePickerLocale.values;
@@ -39,7 +40,7 @@ class _MainPageState extends State<MainPage> {
   TextEditingController _tgl_pertama = TextEditingController();
   TextEditingController _tgl_kedua = TextEditingController();
   DateTime _dateTime;
-  String _valType = '-';
+  String _valType = 'LK/0001';
   List _type = ["Semua Lokasi", "LK/0001", "LK/0002"];
   @override
   void initState() {
@@ -68,6 +69,11 @@ class _MainPageState extends State<MainPage> {
       // charts=hourly.cast<List<double>>();
       setState(() {});
     });
+
+    UserRepository().isName().then((val) {
+      nama = val;
+      setState(() {});
+    });
   }
 
   @override
@@ -81,7 +87,7 @@ class _MainPageState extends State<MainPage> {
                   false, // Used for removing back buttoon.
               elevation: 2.0,
               backgroundColor: Colors.white,
-              title: Text('Monitoring [Nama Toko]',
+              title: Text('Monitoring $nama',
                   style: TextStyle(
                       fontFamily: 'Rubik',
                       color: Colors.black,

@@ -15,7 +15,7 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-  bool isLoading = false,isServer=true;
+  bool isLoading = false, isServer = true;
   var usernameController = TextEditingController();
   var passwordController = TextEditingController();
   var serverAddressController = TextEditingController();
@@ -25,18 +25,54 @@ class _LoginPageState extends State<LoginPage> {
 
   Future _Login() async {
     setState(() {
-      isLoading=false;
+      showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (BuildContext context) {
+          return ConstrainedBox(
+              constraints: BoxConstraints(maxHeight: 100.0),
+              child: AlertDialog(
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    CircularProgressIndicator(
+                        strokeWidth: 10.0,
+                        valueColor:
+                            new AlwaysStoppedAnimation<Color>(Colors.black)),
+                    SizedBox(height: 5.0),
+                    Text("Tunggu Sebentar .....",
+                        style: TextStyle(
+                            fontFamily: 'Rubik', fontWeight: FontWeight.bold))
+                  ],
+                ),
+              ));
+        },
+      );
     });
+
+    final prefs = await SharedPreferences.getInstance();
+
     if (usernameController.text == '' || passwordController.text == '') {
-      return HelperWidget().showInSnackBar(_scaffoldKey, context, 'username atau password tidak boleh kosong', 'failed');
+      setState(() {
+        Navigator.pop(context);
+      });
+
+      return HelperWidget().showInSnackBar(_scaffoldKey, context,
+          'username atau password tidak boleh kosong', 'failed');
     } else {
-      var result = MonitoringProvider().login(usernameController.text, passwordController.text);
+      setState(() {
+        Navigator.pop(context);
+      });
+      var result = MonitoringProvider()
+          .login(usernameController.text, passwordController.text);
       result.then((val) {
-        if (val.status == 1) {
-          UserRepository().setLogin(islogin: val.msg);
-          HelperWidget().removeNavigator(context,  (context) => MainPage());
+        if (val.status == true) {
+          prefs.setString('nama', val.data.nama);
+          UserRepository().setLogin(islogin: val.pesan);
+          HelperWidget().removeNavigator(context, (context) => MainPage());
         } else {
-          return HelperWidget().showInSnackBar(_scaffoldKey, context, val.msg, 'failed');
+          return HelperWidget()
+              .showInSnackBar(_scaffoldKey, context, val.pesan, 'failed');
         }
         setState(() {});
       });
@@ -45,39 +81,40 @@ class _LoginPageState extends State<LoginPage> {
 
   Future setServer() async {
     setState(() {
-      isLoading=false;
+      isLoading = false;
     });
     if (serverAddressController.text == '') {
-      return HelperWidget().showInSnackBar(_scaffoldKey, context, 'silahkan masukan alamat server', 'failed');
+      return HelperWidget().showInSnackBar(
+          _scaffoldKey, context, 'silahkan masukan alamat server', 'failed');
     } else {
       final prefs = await SharedPreferences.getInstance();
-      prefs.setString('serverAddress', "http://"+serverAddressController.text);
+      prefs.setString(
+          'serverAddress', 'http://' + serverAddressController.text);
       setState(() {
-        isServer=false;
+        isServer = false;
       });
       print("SERVER ADDRESS RUNNING ON = ${prefs.getString('serverAddress')}");
     }
   }
 
-  bool checkServer=false;
-  
+  bool checkServer = false;
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    UserRepository().isServerAddress().then((val){
+    UserRepository().isServerAddress().then((val) {
       print("IS SERVER $val");
       checkServer = false;
       setState(() {});
     });
   }
 
-
   @override
   Widget build(BuildContext context) {
-    return  WillPopScope(
+    return WillPopScope(
       onWillPop: _onWillPop,
-      child:Scaffold(
+      child: Scaffold(
         key: _scaffoldKey,
         body: buildContents(context),
       ),
@@ -87,127 +124,141 @@ class _LoginPageState extends State<LoginPage> {
   Widget buildContents(BuildContext context) {
     return SingleChildScrollView(
         child: Container(
-          height: MediaQuery.of(context).size.height,
-          child: Stack(
-            children: <Widget>[
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Expanded(flex: 3, child: SizedBox(),),
-                    Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: <Widget>[
-                          Hero(tag: 'Monitoring', child: CircleAvatar(backgroundColor: Colors.transparent, radius: 50.0, child: Image.asset('res/logo.png'),),),
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: 50,),
-                    checkServer!=true?isServer?authServerAddress(context):authPages(context):authPages(context),
-                    SizedBox(height: 20,),
-                    InkWell(
-                      onTap: () {
-                        setState(() {
-                          isLoading = true;
-                        });
-                        isServer?setServer():_Login();
-                      },
-                      child: Container(
-                          width: MediaQuery.of(context).size.width,
-                          padding: EdgeInsets.symmetric(vertical: 15),
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.all(Radius.circular(5)),
-                              boxShadow: <BoxShadow>[
-                                BoxShadow(color: Colors.grey.shade200, offset: Offset(2, 4), blurRadius: 5, spreadRadius: 2)
-                              ],
-                              gradient: LinearGradient(begin: Alignment.centerLeft, end: Alignment.centerRight, colors: [Color(0xfffbb448), Color(0xfff7892b)])
-                          ),
-                          child: isLoading?CircularProgressIndicator():HelperWidget().myTextStyle(context, "MASUK", TextAlign.center, 20.0, FontWeight.bold, Colors.white)
-                      ),
-                    ),
-                    Expanded(
-                      flex: 2,
-                      child: SizedBox(),
-                    ),
-                  ],
+      height: MediaQuery.of(context).size.height,
+      child: Stack(
+        children: <Widget>[
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Expanded(
+                  flex: 3,
+                  child: SizedBox(),
                 ),
-              ),
-
-              Positioned(
-                  top: -MediaQuery.of(context).size.height * .15,
-                  right: -MediaQuery.of(context).size.width * .4,
-                  child: BezierContainer())
-            ],
+                Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+                      Hero(
+                        tag: 'Monitoring',
+                        child: CircleAvatar(
+                          backgroundColor: Colors.transparent,
+                          radius: 50.0,
+                          child: Image.asset('res/logo.png'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  height: 50,
+                ),
+                checkServer != true
+                    ? isServer ? authServerAddress(context) : authPages(context)
+                    : authPages(context),
+                SizedBox(
+                  height: 20,
+                ),
+                InkWell(
+                  onTap: () {
+                    setState(() {
+                      isLoading = true;
+                    });
+                    isServer ? setServer() : _Login();
+                  },
+                  child: Container(
+                      width: MediaQuery.of(context).size.width,
+                      padding: EdgeInsets.symmetric(vertical: 15),
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(5)),
+                          boxShadow: <BoxShadow>[
+                            BoxShadow(
+                                color: Colors.grey.shade200,
+                                offset: Offset(2, 4),
+                                blurRadius: 5,
+                                spreadRadius: 2)
+                          ],
+                          gradient: LinearGradient(
+                              begin: Alignment.centerLeft,
+                              end: Alignment.centerRight,
+                              colors: [Color(0xfffbb448), Color(0xfff7892b)])),
+                      child: HelperWidget().myTextStyle(
+                          context,
+                          "MASUK",
+                          TextAlign.center,
+                          20.0,
+                          FontWeight.bold,
+                          Colors.white)),
+                ),
+                Expanded(
+                  flex: 2,
+                  child: SizedBox(),
+                ),
+              ],
+            ),
           ),
-        )
-    );
-  }
-  Future<bool> _onWillPop() async {
-    return (await showDialog(
-      context: context,
-      builder: (context) => new AlertDialog(
-        title: new Text('Are you sure?'),
-        content: new Text('Do you want to exit an App'),
-        actions: <Widget>[
-          new FlatButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: new Text('No'),
-          ),
-          new FlatButton(
-            onPressed: () => SystemNavigator.pop(),
-            child: new Text('Yes'),
-          ),
+          Positioned(
+              top: -MediaQuery.of(context).size.height * .15,
+              right: -MediaQuery.of(context).size.width * .4,
+              child: BezierContainer())
         ],
       ),
-    )) ?? false;
+    ));
   }
-  
-  Widget authPages(BuildContext context){
+
+  Future<bool> _onWillPop() async {
+    return (await showDialog(
+          context: context,
+          builder: (context) => new AlertDialog(
+            title: new Text('Are you sure?'),
+            content: new Text('Do you want to exit an App'),
+            actions: <Widget>[
+              new FlatButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: new Text('No'),
+              ),
+              new FlatButton(
+                onPressed: () => SystemNavigator.pop(),
+                child: new Text('Yes'),
+              ),
+            ],
+          ),
+        )) ??
+        false;
+  }
+
+  Widget authPages(BuildContext context) {
     return Column(
       children: <Widget>[
-        HelperWidget().entryField(
-            context,
-            TextInputAction.next,
-                () {HelperWidget().fieldFocusChange(context, usernameFocus, passwordFocus);},
-            usernameController,
-            usernameFocus,
-            "Username",
-            Icon(Icons.person_pin)
-        ),
-        HelperWidget().entryField(
-            context,
-            TextInputAction.done, () {},
-            passwordController,
-            passwordFocus,
-            "Password",
-            Icon(Icons.lock),
-            isPassword: true
-        )
+        HelperWidget().entryField(context, TextInputAction.next, () {
+          HelperWidget()
+              .fieldFocusChange(context, usernameFocus, passwordFocus);
+        }, usernameController, usernameFocus, "Username",
+            Icon(Icons.person_pin)),
+        HelperWidget().entryField(context, TextInputAction.done, () {},
+            passwordController, passwordFocus, "Password", Icon(Icons.lock),
+            isPassword: true)
       ],
     );
   }
-  Widget authServerAddress(BuildContext context){
+
+  Widget authServerAddress(BuildContext context) {
     return Column(
       children: <Widget>[
         HelperWidget().entryField(
             context,
-            TextInputAction.done, () {},
+            TextInputAction.done,
+            () {},
             serverAddressController,
             serverAddressFocus,
             "Server Address",
             Icon(Icons.link),
-            isPassword: false
-        )
+            isPassword: false)
       ],
     );
   }
 }
-
-
-
-
