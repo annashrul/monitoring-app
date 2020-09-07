@@ -2,44 +2,43 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:monitoring_apps/model/laporan_stock/laporanStockUtamaModel.dart';
+import 'package:monitoring_apps/model/laporanMutasiModel.dart';
 import 'package:monitoring_apps/model/lokasi.dart';
-import 'package:monitoring_apps/pages/helper/helper_widget.dart';
 import 'package:monitoring_apps/pages/helper/loadMoreQ.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_cupertino_date_picker/flutter_cupertino_date_picker.dart';
-import 'package:monitoring_apps/pages/laporan_stock/laporan_stock_detail.dart';
+import 'package:monitoring_apps/pages/laporan_mutasi/laporan_mutasi_detail.dart';
 import 'package:monitoring_apps/provider/lokasi_provider.dart';
 import 'package:monitoring_apps/utils/user_repository.dart';
 
-class LaporanStockUtama extends StatefulWidget {
+class LaporanMutasi extends StatefulWidget {
   @override
-  _LaporanStockUtamaState createState() => _LaporanStockUtamaState();
+  _LaporanMutasiState createState() => _LaporanMutasiState();
 }
 
-class _LaporanStockUtamaState extends State<LaporanStockUtama> {
+class _LaporanMutasiState extends State<LaporanMutasi> {
   int perpage = 10;
-  LaporanStockUtamaModel laporanStockUtamaModel;
+  LaporanMutasiModel laporanMutasiModel;
   bool isLoading = false, isRetry = false, isConnected = false;
-  final GlobalKey<RefreshIndicatorState> _refresh = GlobalKey<RefreshIndicatorState>();
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-
+  final GlobalKey<RefreshIndicatorState> _refresh =
+      GlobalKey<RefreshIndicatorState>();
   final userRepository = UserRepository();
 
   Map<String, String> get headers => {
-    "Content-Type": "application/json",
-    "username": "netindo",
-    "password": "\$2b\$08\$hLMU6rEvNILCMaQbthARK.iCmDRO7jNbUB8CcvyRStqsHD4UQxjDO",
-    "Authorization": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxIiwiaWF0IjoxNTk3MTM0NzM3LCJleHAiOjE1OTk3MjY3Mzd9.Dy6OCNL9BhUgUTPcQMlEXTbw5Dyv3UnG_Kyvs3WHicE",
-  };
+        "Content-Type": "application/json",
+        "username": "netindo",
+        "password":
+            "\$2b\$08\$hLMU6rEvNILCMaQbthARK.iCmDRO7jNbUB8CcvyRStqsHD4UQxjDO",
+        "Authorization":
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxIiwiaWF0IjoxNTk3MTM0NzM3LCJleHAiOjE1OTk3MjY3Mzd9.Dy6OCNL9BhUgUTPcQMlEXTbw5Dyv3UnG_Kyvs3WHicE",
+      };
   String _format = 'yyyy-MM-dd';
   TextEditingController _tgl_pertama = TextEditingController();
   TextEditingController _tgl_kedua = TextEditingController();
   DateTime _dateTime;
   String datefrom = '2020-01-01';
   String dateto = '2020-09-04';
-  String _valType = 'Pilih Lokasi';
-  String nama_toko = '';
+  String _valType = 'Pilih Lokasi'; //Ini untuk menyimpan value data friend
   List _type = [
     {"kode": "Pilih Lokasi", "nama": "Pilih Lokasi"}
   ];
@@ -52,20 +51,15 @@ class _LaporanStockUtamaState extends State<LaporanStockUtama> {
             "nama": value.result.data[x].nama,
           });
         }
-        setState(() {
-          _valType=_type[1]['kode'];
-          nama_toko=_type[1]['nama'];
-        });
-        print("NAMA TOKO $nama_toko");
+        _valType = _type[1].kode;
       }
-
     });
     loadData();
   }
 
   Future<void> loadData() async {
     final server = await userRepository.isServerAddress();
-    String url = "$server/report/stock?page=1&perpage=$perpage";
+    String url = "$server/mutasi/report?page=1&perpage=$perpage";
     if (_valType != 'Pilih Lokasi') {
       url += '&lokasi=$_valType';
     }
@@ -75,7 +69,7 @@ class _LaporanStockUtamaState extends State<LaporanStockUtama> {
     if (_tgl_kedua.text != 'yyyy-MM-dd') {
       url += '&dateto=${_tgl_kedua.text}';
     }
-    print('URL LAPORAN STOCK UTAMA $url');
+    print("URL LAPORAN STOCK $url");
     try {
       setState(() {
         isLoading = true;
@@ -83,12 +77,10 @@ class _LaporanStockUtamaState extends State<LaporanStockUtama> {
       });
       final jsonString =
           await http.get(url, headers: headers).timeout(Duration(seconds: 20));
-      if (jsonString.statusCode == 200) {
-        String url = "$server/report/stock?page=1?page=1&perpage=$perpage";
 
+      if (jsonString.statusCode == 200) {
         final jsonResponse = json.decode(jsonString.body);
-        laporanStockUtamaModel =
-            new LaporanStockUtamaModel.fromJson(jsonResponse);
+        laporanMutasiModel = new LaporanMutasiModel.fromJson(jsonResponse);
         setState(() {
           isLoading = false;
           isRetry = false;
@@ -139,6 +131,7 @@ class _LaporanStockUtamaState extends State<LaporanStockUtama> {
         });
       },
       onConfirm: (dateTime, List<int> index) {
+        print("INDEX $index");
         setState(() {
           _dateTime = dateTime;
           if (param == '1') {
@@ -154,7 +147,6 @@ class _LaporanStockUtamaState extends State<LaporanStockUtama> {
       },
     );
   }
-
 
   @override
   void initState() {
@@ -174,7 +166,6 @@ class _LaporanStockUtamaState extends State<LaporanStockUtama> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _scaffoldKey,
       appBar: AppBar(
         elevation: 0.0,
         backgroundColor: Colors.transparent,
@@ -183,7 +174,7 @@ class _LaporanStockUtamaState extends State<LaporanStockUtama> {
           onPressed: () => Navigator.of(context).pop(),
           icon: Icon(Icons.arrow_back, color: Colors.black),
         ),
-        title: Text('Laporan Stock',
+        title: Text('Laporan Mutasi',
             style: TextStyle(color: Colors.black, fontWeight: FontWeight.w700)),
       ),
       body: Column(
@@ -202,7 +193,7 @@ class _LaporanStockUtamaState extends State<LaporanStockUtama> {
                           controller: _tgl_pertama,
                           keyboardType: TextInputType.url,
                           decoration: InputDecoration(
-                            labelText: 'Dari',
+                            labelText: 'Tanggal Pertama',
                             hintText: 'yyyy-MM-dd',
                             hintStyle: TextStyle(
                                 color: Colors.black26,
@@ -217,6 +208,8 @@ class _LaporanStockUtamaState extends State<LaporanStockUtama> {
                               _tgl_pertama.text =
                                   '${_dateTime.year}-${_dateTime.month.toString().padLeft(2, '0')}-${_dateTime.day.toString().padLeft(2, '0')}';
                             });
+                            print(
+                                'TANGGAL PERTAMA = ${_dateTime.year}-${_dateTime.month.toString().padLeft(2, '0')}-${_dateTime.day.toString().padLeft(2, '0')}');
                           },
                         ),
                       ],
@@ -236,13 +229,12 @@ class _LaporanStockUtamaState extends State<LaporanStockUtama> {
                           controller: _tgl_kedua,
                           keyboardType: TextInputType.url,
                           decoration: InputDecoration(
-                            labelText: 'Sampai',
+                            labelText: 'Tanggal Kedua',
                             hintText: 'yyyy-MM-dd',
                             hintStyle: TextStyle(
                                 color: Colors.black26,
                                 fontWeight: FontWeight.bold,
-                                fontFamily: 'Rubik'
-                            ),
+                                fontFamily: 'Rubik'),
                           ),
                           onTap: () {
                             _showDatePicker('2');
@@ -260,17 +252,29 @@ class _LaporanStockUtamaState extends State<LaporanStockUtama> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      Text("Lokasi",style: TextStyle(fontFamily: 'Rubik'),),
-                      SizedBox(height: 5.0,),
+                      Text('Lokasi',
+                          style: TextStyle(
+                              fontSize: 12.0,
+                              color: Colors.black26,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: 'Rubik')),
+                      SizedBox(height: 5.0),
                       DropdownButton(
                         isDense: true,
                         isExpanded: true,
-                        hint: Text("Pilih", style: TextStyle(fontFamily: 'Rubik'),),
+                        hint: Text(
+                          "Pilih",
+                          style: TextStyle(fontFamily: 'Rubik'),
+                        ),
                         value: _valType,
                         items: _type.map((value) {
-                          return DropdownMenuItem<String>(
-                            child: Text(value['nama'], style: TextStyle(fontFamily: 'Rubik', fontWeight: FontWeight.bold)),
-                            value: "${value['kode']}",
+                          print(value['kode']);
+                          return DropdownMenuItem(
+                            child: Text(value['nama'],
+                                style: TextStyle(
+                                    fontFamily: 'Rubik',
+                                    fontWeight: FontWeight.bold)),
+                            value: value['kode'],
                           );
                         }).toList(),
                         onChanged: (value) {
@@ -321,9 +325,13 @@ class _LaporanStockUtamaState extends State<LaporanStockUtama> {
                   : isLoading
                       ? Container(
                           child: Center(
-                            child: CircularProgressIndicator(strokeWidth: 5.0, valueColor: new AlwaysStoppedAnimation<Color>(Colors.black)),
+                            child: CircularProgressIndicator(
+                                strokeWidth: 5.0,
+                                valueColor: new AlwaysStoppedAnimation<Color>(
+                                    Colors.black)),
                           ),
                         )
+                      // : _buildItem(context),
                       : _buildItem(context),
             ),
             onRefresh: loadData,
@@ -331,30 +339,21 @@ class _LaporanStockUtamaState extends State<LaporanStockUtama> {
           )),
         ],
       ),
-      bottomNavigationBar: isRetry == true || isConnected == true
-          ? Text('')
-          : isLoading ? Text('') : _bottomInfo(context),
     );
   }
 
   Widget _buildItem(BuildContext context) {
     return LoadMoreQ(
       child: ListView.builder(
-        itemCount: laporanStockUtamaModel.result.data.length,
+        itemCount: laporanMutasiModel.result.data.length,
         itemBuilder: (BuildContext context, int index) {
-          var stock_akhir = (double.parse(
-                      laporanStockUtamaModel.result.data[index].stockAwal) +
-                  double.parse(
-                      laporanStockUtamaModel.result.data[index].stockMasuk)) -
-              double.parse(
-                  laporanStockUtamaModel.result.data[index].stockKeluar);
           return GestureDetector(
               child: Padding(
                 padding: EdgeInsets.only(bottom: 16.0),
                 child: Align(
                   alignment: Alignment.topCenter,
                   child: SizedBox.fromSize(
-                      size: Size.fromHeight(165.0),
+                      size: Size.fromHeight(150.0),
                       child: Stack(
                         fit: StackFit.expand,
                         children: <Widget>[
@@ -381,7 +380,7 @@ class _LaporanStockUtamaState extends State<LaporanStockUtama> {
                                           CrossAxisAlignment.start,
                                       children: <Widget>[
                                         Text(
-                                            '${laporanStockUtamaModel.result.data[index].kdBrg} ( ${laporanStockUtamaModel.result.data[index].satuan} )',
+                                            '${laporanMutasiModel.result.data[index].noFakturMutasi}',
                                             style: TextStyle(
                                                 fontFamily: 'Rubik',
                                                 color: Colors.blueAccent)),
@@ -391,23 +390,23 @@ class _LaporanStockUtamaState extends State<LaporanStockUtama> {
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: <Widget>[
-                                            Container(
-                                              margin: const EdgeInsets.only(
-                                                  top: 2.0),
-                                              child: Text(
-                                                  '${laporanStockUtamaModel.result.data[index].nmBrg}',
-                                                  style: TextStyle(
-                                                      fontFamily: 'Rubik',
-                                                      color: Colors.black,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      fontSize: 16.0)),
-                                            ),
+                                            // Container(
+                                            //   margin: const EdgeInsets.only(
+                                            //       top: 2.0),
+                                            //   child: Text(
+                                            //       '${laporanMutasiModel.result.data[index].}',
+                                            //       style: TextStyle(
+                                            //           fontFamily: 'Rubik',
+                                            //           color: Colors.black,
+                                            //           fontWeight:
+                                            //               FontWeight.bold,
+                                            //           fontSize: 16.0)),
+                                            // ),
                                             Container(
                                               margin: const EdgeInsets.only(
                                                   top: 0.0),
                                               child: Text(
-                                                  '${laporanStockUtamaModel.result.data[index].supplier}',
+                                                  'Asal: ${laporanMutasiModel.result.data[index].lokasiAsal}',
                                                   style: TextStyle(
                                                       fontFamily: 'Rubik',
                                                       color: Colors.black38,
@@ -419,7 +418,19 @@ class _LaporanStockUtamaState extends State<LaporanStockUtama> {
                                               margin: const EdgeInsets.only(
                                                   top: 0.0),
                                               child: Text(
-                                                  '${laporanStockUtamaModel.result.data[index].subDept} ( ${laporanStockUtamaModel.result.data[index].namaKel} )',
+                                                  'Tujuan: ${laporanMutasiModel.result.data[index].lokasiTujuan}',
+                                                  style: TextStyle(
+                                                      fontFamily: 'Rubik',
+                                                      color: Colors.black38,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 14.0)),
+                                            ),
+                                            Container(
+                                              margin: const EdgeInsets.only(
+                                                  top: 0.0),
+                                              child: Text(
+                                                  'Keterangan: ${laporanMutasiModel.result.data[index].keterangan}',
                                                   style: TextStyle(
                                                       fontFamily: 'Rubik',
                                                       color: Colors.black38,
@@ -432,58 +443,51 @@ class _LaporanStockUtamaState extends State<LaporanStockUtama> {
                                       ],
                                     ),
                                     Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: <Widget>[
-                                        Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: <Widget>[
-                                              Text(
-                                                  'Stock Awal : ${laporanStockUtamaModel.result.data[index].stockAwal}',
-                                                  style: TextStyle(
-                                                      fontFamily: 'Rubik',
-                                                      color: Colors.blueAccent,
-                                                      fontSize: 12.0,
-                                                      fontWeight:
-                                                          FontWeight.bold)),
-                                              Text(
-                                                  'Stock Keluar : ${laporanStockUtamaModel.result.data[index].stockKeluar}',
-                                                  style: TextStyle(
-                                                      fontFamily: 'Rubik',
-                                                      color: Colors.blueAccent,
-                                                      fontSize: 12.0,
-                                                      fontWeight:
-                                                          FontWeight.bold)),
-                                            ]),
-                                        Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: <Widget>[
-                                              Text(
-                                                  'Stock Masuk : ${laporanStockUtamaModel.result.data[index].stockMasuk}',
-                                                  style: TextStyle(
-                                                      fontFamily: 'Rubik',
-                                                      color: Colors.blueAccent,
-                                                      fontSize: 12.0,
-                                                      fontWeight:
-                                                          FontWeight.bold)),
-                                              Text('Stock Akhir : $stock_akhir',
-                                                  style: TextStyle(
-                                                      fontFamily: 'Rubik',
-                                                      color: Colors.blueAccent,
-                                                      fontSize: 12.0,
-                                                      fontWeight:
-                                                          FontWeight.bold)),
-                                            ]),
-                                      ],
-                                    ),
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.end,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.end,
+                                        children: <Widget>[
+                                          Text('Status: ', style: TextStyle()),
+                                          Padding(
+                                            padding: EdgeInsets.symmetric(
+                                                horizontal: 4.0),
+                                            child: int.parse(laporanMutasiModel
+                                                        .result
+                                                        .data[index]
+                                                        .status) ==
+                                                    1
+                                                ? Material(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            8.0),
+                                                    color: Colors.green,
+                                                    child: Padding(
+                                                      padding:
+                                                          EdgeInsets.all(4.0),
+                                                      child: Text('Diterima',
+                                                          style: TextStyle(
+                                                              color: Colors
+                                                                  .white)),
+                                                    ),
+                                                  )
+                                                : Material(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            8.0),
+                                                    color: Colors.red,
+                                                    child: Padding(
+                                                      padding:
+                                                          EdgeInsets.all(4.0),
+                                                      child: Text(
+                                                          'Belum diterima',
+                                                          style: TextStyle(
+                                                              color: Colors
+                                                                  .white)),
+                                                    ),
+                                                  ),
+                                          ),
+                                        ])
                                   ],
                                 ),
                               ),
@@ -511,84 +515,17 @@ class _LaporanStockUtamaState extends State<LaporanStockUtama> {
                 ),
               ),
               onTap: () {
-                print(nama_toko);
-                if(_tgl_pertama.text=='yyyy-MM-dd'){
-                  return HelperWidget().showInSnackBar(_scaffoldKey, context, 'silahkan pilih tanggal pertama', 'failed');
-                }
-                else if(_tgl_kedua.text=='yyyy-MM-dd'){
-                  return HelperWidget().showInSnackBar(_scaffoldKey, context, 'silahkan pilih tanggal kedua', 'failed');
-                }
-                else if(_valType=='Pilih Lokasi'){
-                  return HelperWidget().showInSnackBar(_scaffoldKey, context, 'silahkan pilih lokasi', 'failed');
-                }
-                else{
-                  Navigator.of(context).push(CupertinoPageRoute(builder: (_) => LaporanStockDetail(
-                    datefrom: _tgl_pertama.text,
-                    dateto: _tgl_kedua.text,
-                    lokasi: _valType,
-                    kdLokasi: _valType,
-                    kdbrg: laporanStockUtamaModel.result.data[index].kdBrg,
-                    nmbrg: laporanStockUtamaModel.result.data[index].nmBrg,
-                  )));
-                }
-
+                Navigator.of(context).push(new CupertinoPageRoute(
+                    builder: (_) => LaporanMutasiDetail(
+                        '${laporanMutasiModel.result.data[index].noFakturMutasi}')));
               });
         },
       ),
       whenEmptyLoad: true,
       delegate: DefaultLoadMoreDelegate(),
       textBuilder: DefaultLoadMoreTextBuilder.english,
-      isFinish: laporanStockUtamaModel.result.data.length < perpage,
+      isFinish: laporanMutasiModel.result.data.length < perpage,
       onLoadMore: _loadMore,
-    );
-  }
-
-  Widget _bottomInfo(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text(
-                "Total Stock Awal : ${laporanStockUtamaModel.result.totalStock.totalStockAwal}",
-                style: TextStyle(
-                    color: Colors.black54,
-                    fontFamily: 'Rubik',
-                    fontWeight: FontWeight.bold),
-              ),
-              Text(
-                  "Total Stock Akhir : ${laporanStockUtamaModel.result.totalStock.totalStockAkhir}",
-                  style: TextStyle(
-                      color: Colors.black54,
-                      fontFamily: 'Rubik',
-                      fontWeight: FontWeight.bold))
-            ],
-          ),
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text(
-                "Total Stock Masuk : ${laporanStockUtamaModel.result.totalStock.totalStockMasuk}",
-                style: TextStyle(
-                    color: Colors.black54,
-                    fontFamily: 'Rubik',
-                    fontWeight: FontWeight.bold),
-              ),
-              Text(
-                  "Total Stock Keluar : ${laporanStockUtamaModel.result.totalStock.totalStockKeluar}",
-                  style: TextStyle(
-                      color: Colors.black54,
-                      fontFamily: 'Rubik',
-                      fontWeight: FontWeight.bold))
-            ],
-          ),
-        ],
-      ),
     );
   }
 }
