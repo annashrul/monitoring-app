@@ -2,22 +2,23 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:monitoring_apps/model/laporan_stock/laporanStockUtamaModel.dart';
+import 'package:monitoring_apps/model/laporanMutasiModel.dart';
 import 'package:monitoring_apps/model/lokasi.dart';
 import 'package:monitoring_apps/pages/helper/loadMoreQ.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_cupertino_date_picker/flutter_cupertino_date_picker.dart';
+import 'package:monitoring_apps/pages/laporan_mutasi/laporan_mutasi_detail.dart';
 import 'package:monitoring_apps/provider/lokasi_provider.dart';
 import 'package:monitoring_apps/utils/user_repository.dart';
 
-class LaporanStockUtama extends StatefulWidget {
+class LaporanMutasi extends StatefulWidget {
   @override
-  _LaporanStockUtamaState createState() => _LaporanStockUtamaState();
+  _LaporanMutasiState createState() => _LaporanMutasiState();
 }
 
-class _LaporanStockUtamaState extends State<LaporanStockUtama> {
+class _LaporanMutasiState extends State<LaporanMutasi> {
   int perpage = 10;
-  LaporanStockUtamaModel laporanStockUtamaModel;
+  LaporanMutasiModel laporanMutasiModel;
   bool isLoading = false, isRetry = false, isConnected = false;
   final GlobalKey<RefreshIndicatorState> _refresh =
       GlobalKey<RefreshIndicatorState>();
@@ -58,7 +59,7 @@ class _LaporanStockUtamaState extends State<LaporanStockUtama> {
 
   Future<void> loadData() async {
     final server = await userRepository.isServerAddress();
-    String url = "$server/report/stock?page=1?page=1&perpage=$perpage";
+    String url = "$server/mutasi/report?page=1&perpage=$perpage";
     if (_valType != 'Pilih Lokasi') {
       url += '&lokasi=$_valType';
     }
@@ -76,13 +77,10 @@ class _LaporanStockUtamaState extends State<LaporanStockUtama> {
       });
       final jsonString =
           await http.get(url, headers: headers).timeout(Duration(seconds: 20));
-      print(jsonString);
-      if (jsonString.statusCode == 200) {
-        String url = "$server/report/stock?page=1?page=1&perpage=$perpage";
 
+      if (jsonString.statusCode == 200) {
         final jsonResponse = json.decode(jsonString.body);
-        laporanStockUtamaModel =
-            new LaporanStockUtamaModel.fromJson(jsonResponse);
+        laporanMutasiModel = new LaporanMutasiModel.fromJson(jsonResponse);
         setState(() {
           isLoading = false;
           isRetry = false;
@@ -176,7 +174,7 @@ class _LaporanStockUtamaState extends State<LaporanStockUtama> {
           onPressed: () => Navigator.of(context).pop(),
           icon: Icon(Icons.arrow_back, color: Colors.black),
         ),
-        title: Text('Laporan Stock',
+        title: Text('Laporan Mutasi',
             style: TextStyle(color: Colors.black, fontWeight: FontWeight.w700)),
       ),
       body: Column(
@@ -333,6 +331,7 @@ class _LaporanStockUtamaState extends State<LaporanStockUtama> {
                                     Colors.black)),
                           ),
                         )
+                      // : _buildItem(context),
                       : _buildItem(context),
             ),
             onRefresh: loadData,
@@ -340,30 +339,21 @@ class _LaporanStockUtamaState extends State<LaporanStockUtama> {
           )),
         ],
       ),
-      bottomNavigationBar: isRetry == true || isConnected == true
-          ? Text('')
-          : isLoading ? Text('') : _bottomInfo(context),
     );
   }
 
   Widget _buildItem(BuildContext context) {
     return LoadMoreQ(
       child: ListView.builder(
-        itemCount: laporanStockUtamaModel.result.data.length,
+        itemCount: laporanMutasiModel.result.data.length,
         itemBuilder: (BuildContext context, int index) {
-          var stock_akhir = (double.parse(
-                      laporanStockUtamaModel.result.data[index].stockAwal) +
-                  double.parse(
-                      laporanStockUtamaModel.result.data[index].stockMasuk)) -
-              double.parse(
-                  laporanStockUtamaModel.result.data[index].stockKeluar);
           return GestureDetector(
               child: Padding(
                 padding: EdgeInsets.only(bottom: 16.0),
                 child: Align(
                   alignment: Alignment.topCenter,
                   child: SizedBox.fromSize(
-                      size: Size.fromHeight(165.0),
+                      size: Size.fromHeight(150.0),
                       child: Stack(
                         fit: StackFit.expand,
                         children: <Widget>[
@@ -390,7 +380,7 @@ class _LaporanStockUtamaState extends State<LaporanStockUtama> {
                                           CrossAxisAlignment.start,
                                       children: <Widget>[
                                         Text(
-                                            '${laporanStockUtamaModel.result.data[index].kdBrg} ( ${laporanStockUtamaModel.result.data[index].satuan} )',
+                                            '${laporanMutasiModel.result.data[index].noFakturMutasi}',
                                             style: TextStyle(
                                                 fontFamily: 'Rubik',
                                                 color: Colors.blueAccent)),
@@ -400,23 +390,23 @@ class _LaporanStockUtamaState extends State<LaporanStockUtama> {
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: <Widget>[
-                                            Container(
-                                              margin: const EdgeInsets.only(
-                                                  top: 2.0),
-                                              child: Text(
-                                                  '${laporanStockUtamaModel.result.data[index].nmBrg}',
-                                                  style: TextStyle(
-                                                      fontFamily: 'Rubik',
-                                                      color: Colors.black,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      fontSize: 16.0)),
-                                            ),
+                                            // Container(
+                                            //   margin: const EdgeInsets.only(
+                                            //       top: 2.0),
+                                            //   child: Text(
+                                            //       '${laporanMutasiModel.result.data[index].}',
+                                            //       style: TextStyle(
+                                            //           fontFamily: 'Rubik',
+                                            //           color: Colors.black,
+                                            //           fontWeight:
+                                            //               FontWeight.bold,
+                                            //           fontSize: 16.0)),
+                                            // ),
                                             Container(
                                               margin: const EdgeInsets.only(
                                                   top: 0.0),
                                               child: Text(
-                                                  '${laporanStockUtamaModel.result.data[index].supplier}',
+                                                  'Asal: ${laporanMutasiModel.result.data[index].lokasiAsal}',
                                                   style: TextStyle(
                                                       fontFamily: 'Rubik',
                                                       color: Colors.black38,
@@ -428,7 +418,19 @@ class _LaporanStockUtamaState extends State<LaporanStockUtama> {
                                               margin: const EdgeInsets.only(
                                                   top: 0.0),
                                               child: Text(
-                                                  '${laporanStockUtamaModel.result.data[index].subDept} ( ${laporanStockUtamaModel.result.data[index].namaKel} )',
+                                                  'Tujuan: ${laporanMutasiModel.result.data[index].lokasiTujuan}',
+                                                  style: TextStyle(
+                                                      fontFamily: 'Rubik',
+                                                      color: Colors.black38,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 14.0)),
+                                            ),
+                                            Container(
+                                              margin: const EdgeInsets.only(
+                                                  top: 0.0),
+                                              child: Text(
+                                                  'Keterangan: ${laporanMutasiModel.result.data[index].keterangan}',
                                                   style: TextStyle(
                                                       fontFamily: 'Rubik',
                                                       color: Colors.black38,
@@ -441,58 +443,51 @@ class _LaporanStockUtamaState extends State<LaporanStockUtama> {
                                       ],
                                     ),
                                     Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: <Widget>[
-                                        Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: <Widget>[
-                                              Text(
-                                                  'Stock Awal : ${laporanStockUtamaModel.result.data[index].stockAwal}',
-                                                  style: TextStyle(
-                                                      fontFamily: 'Rubik',
-                                                      color: Colors.blueAccent,
-                                                      fontSize: 12.0,
-                                                      fontWeight:
-                                                          FontWeight.bold)),
-                                              Text(
-                                                  'Stock Keluar : ${laporanStockUtamaModel.result.data[index].stockKeluar}',
-                                                  style: TextStyle(
-                                                      fontFamily: 'Rubik',
-                                                      color: Colors.blueAccent,
-                                                      fontSize: 12.0,
-                                                      fontWeight:
-                                                          FontWeight.bold)),
-                                            ]),
-                                        Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: <Widget>[
-                                              Text(
-                                                  'Stock Masuk : ${laporanStockUtamaModel.result.data[index].stockMasuk}',
-                                                  style: TextStyle(
-                                                      fontFamily: 'Rubik',
-                                                      color: Colors.blueAccent,
-                                                      fontSize: 12.0,
-                                                      fontWeight:
-                                                          FontWeight.bold)),
-                                              Text('Stock Akhir : $stock_akhir',
-                                                  style: TextStyle(
-                                                      fontFamily: 'Rubik',
-                                                      color: Colors.blueAccent,
-                                                      fontSize: 12.0,
-                                                      fontWeight:
-                                                          FontWeight.bold)),
-                                            ]),
-                                      ],
-                                    ),
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.end,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.end,
+                                        children: <Widget>[
+                                          Text('Status: ', style: TextStyle()),
+                                          Padding(
+                                            padding: EdgeInsets.symmetric(
+                                                horizontal: 4.0),
+                                            child: int.parse(laporanMutasiModel
+                                                        .result
+                                                        .data[index]
+                                                        .status) ==
+                                                    1
+                                                ? Material(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            8.0),
+                                                    color: Colors.green,
+                                                    child: Padding(
+                                                      padding:
+                                                          EdgeInsets.all(4.0),
+                                                      child: Text('Diterima',
+                                                          style: TextStyle(
+                                                              color: Colors
+                                                                  .white)),
+                                                    ),
+                                                  )
+                                                : Material(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            8.0),
+                                                    color: Colors.red,
+                                                    child: Padding(
+                                                      padding:
+                                                          EdgeInsets.all(4.0),
+                                                      child: Text(
+                                                          'Belum diterima',
+                                                          style: TextStyle(
+                                                              color: Colors
+                                                                  .white)),
+                                                    ),
+                                                  ),
+                                          ),
+                                        ])
                                   ],
                                 ),
                               ),
@@ -519,63 +514,18 @@ class _LaporanStockUtamaState extends State<LaporanStockUtama> {
                       )),
                 ),
               ),
-              onTap: () {});
+              onTap: () {
+                Navigator.of(context).push(new CupertinoPageRoute(
+                    builder: (_) => LaporanMutasiDetail(
+                        '${laporanMutasiModel.result.data[index].noFakturMutasi}')));
+              });
         },
       ),
       whenEmptyLoad: true,
       delegate: DefaultLoadMoreDelegate(),
       textBuilder: DefaultLoadMoreTextBuilder.english,
-      isFinish: laporanStockUtamaModel.result.data.length < perpage,
+      isFinish: laporanMutasiModel.result.data.length < perpage,
       onLoadMore: _loadMore,
-    );
-  }
-
-  Widget _bottomInfo(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text(
-                "Total Stock Awal : ${laporanStockUtamaModel.result.totalStock.totalStockAwal}",
-                style: TextStyle(
-                    color: Colors.black54,
-                    fontFamily: 'Rubik',
-                    fontWeight: FontWeight.bold),
-              ),
-              Text(
-                  "Total Stock Akhir : ${laporanStockUtamaModel.result.totalStock.totalStockAkhir}",
-                  style: TextStyle(
-                      color: Colors.black54,
-                      fontFamily: 'Rubik',
-                      fontWeight: FontWeight.bold))
-            ],
-          ),
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text(
-                "Total Stock Masuk : ${laporanStockUtamaModel.result.totalStock.totalStockMasuk}",
-                style: TextStyle(
-                    color: Colors.black54,
-                    fontFamily: 'Rubik',
-                    fontWeight: FontWeight.bold),
-              ),
-              Text(
-                  "Total Stock Keluar : ${laporanStockUtamaModel.result.totalStock.totalStockKeluar}",
-                  style: TextStyle(
-                      color: Colors.black54,
-                      fontFamily: 'Rubik',
-                      fontWeight: FontWeight.bold))
-            ],
-          ),
-        ],
-      ),
     );
   }
 }

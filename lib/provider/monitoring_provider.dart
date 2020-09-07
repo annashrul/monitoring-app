@@ -16,8 +16,7 @@ class MonitoringProvider {
         // "Authorization": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxIiwiaWF0IjoxNTk3MTM0NzM3LCJleHAiOjE1OTk3MjY3Mzd9.Dy6OCNL9BhUgUTPcQMlEXTbw5Dyv3UnG_Kyvs3WHicE",
       };
   Future<Monitoring> getDashboard() async {
-    final url = "http://192.168.100.10:3000";
-    // final url = await userRepository.isServerAddress();
+    final url = await userRepository.isServerAddress();
     final response = await client.get("$url/site/monitoring");
     if (response.statusCode == 200) {
       return monitoringFromJson(response.body);

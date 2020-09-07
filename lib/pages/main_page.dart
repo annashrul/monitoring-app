@@ -7,6 +7,7 @@ import 'package:flutter_cupertino_date_picker/flutter_cupertino_date_picker.dart
 import 'package:flutter_sparkline/flutter_sparkline.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:monitoring_apps/model/monitoring.dart';
+import 'package:monitoring_apps/pages/laporan_mutasi/laporan_mutasi.dart';
 import 'package:monitoring_apps/pages/laporan_page.dart';
 import 'package:monitoring_apps/pages/laporan_stock/laporan_stock_utama.dart';
 import 'package:monitoring_apps/pages/login_page.dart';
@@ -505,7 +506,7 @@ class _MainPageState extends State<MainPage> {
                               shape: CircleBorder(),
                               child: Padding(
                                 padding: const EdgeInsets.all(16.0),
-                                child: Icon(Icons.shopping_cart,
+                                child: Icon(Icons.storage,
                                     color: Colors.white, size: 30.0),
                               )),
                           Text('Laporan Stock',
@@ -531,7 +532,7 @@ class _MainPageState extends State<MainPage> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
-                              Text('Laporan Stock',
+                              Text('Laporan Mutasi',
                                   style: TextStyle(
                                       fontFamily: 'Rubik',
                                       color: Colors.redAccent,
@@ -551,7 +552,7 @@ class _MainPageState extends State<MainPage> {
                         ]),
                   ),
                   onTap: () => Navigator.of(context).push(
-                      CupertinoPageRoute(builder: (_) => LaporanStockUtama())),
+                      CupertinoPageRoute(builder: (_) => LaporanMutasi())),
                 )
               ],
               staggeredTiles: [
@@ -654,3 +655,7 @@ class _MainPageState extends State<MainPage> {
         false;
   }
 }
+
+const String MIN_DATETIME = '2010-05-12';
+const String MAX_DATETIME = '2021-11-25';
+const String INIT_DATETIME = '2019-05-17';

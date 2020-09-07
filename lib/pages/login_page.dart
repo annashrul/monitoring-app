@@ -67,7 +67,7 @@ class _LoginPageState extends State<LoginPage> {
           .login(usernameController.text, passwordController.text);
       result.then((val) {
         if (val.status == true) {
-          prefs.setString('nama', val.data.nama);
+          prefs.setString('nama', val.data.title);
           UserRepository().setLogin(islogin: val.pesan);
           HelperWidget().removeNavigator(context, (context) => MainPage());
         } else {
