@@ -24,55 +24,24 @@ class _LoginPageState extends State<LoginPage> {
   final FocusNode serverAddressFocus = FocusNode();
 
   Future _Login() async {
-    setState(() {
-      showDialog(
-        barrierDismissible: false,
-        context: context,
-        builder: (BuildContext context) {
-          return ConstrainedBox(
-              constraints: BoxConstraints(maxHeight: 100.0),
-              child: AlertDialog(
-                content: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    CircularProgressIndicator(
-                        strokeWidth: 10.0,
-                        valueColor:
-                            new AlwaysStoppedAnimation<Color>(Colors.black)),
-                    SizedBox(height: 5.0),
-                    Text("Tunggu Sebentar .....",
-                        style: TextStyle(
-                            fontFamily: 'Rubik', fontWeight: FontWeight.bold))
-                  ],
-                ),
-              ));
-        },
-      );
-    });
-
     final prefs = await SharedPreferences.getInstance();
-
     if (usernameController.text == '' || passwordController.text == '') {
       setState(() {
-        Navigator.pop(context);
+        isLoading=false;
       });
-
-      return HelperWidget().showInSnackBar(_scaffoldKey, context,
-          'username atau password tidak boleh kosong', 'failed');
+      return HelperWidget().showInSnackBar(_scaffoldKey, context, 'username atau password tidak boleh kosong', 'failed');
     } else {
       setState(() {
-        Navigator.pop(context);
+        isLoading=false;
       });
-      var result = MonitoringProvider()
-          .login(usernameController.text, passwordController.text);
+      var result = MonitoringProvider().login(usernameController.text, passwordController.text);
       result.then((val) {
         if (val.status == true) {
           prefs.setString('nama', val.data.nama);
           UserRepository().setLogin(islogin: val.pesan);
           HelperWidget().removeNavigator(context, (context) => MainPage());
         } else {
-          return HelperWidget()
-              .showInSnackBar(_scaffoldKey, context, val.pesan, 'failed');
+          return HelperWidget().showInSnackBar(_scaffoldKey, context, val.pesan, 'failed');
         }
         setState(() {});
       });
@@ -180,13 +149,14 @@ class _LoginPageState extends State<LoginPage> {
                                 color: Colors.grey.shade200,
                                 offset: Offset(2, 4),
                                 blurRadius: 5,
-                                spreadRadius: 2)
+                                spreadRadius: 2
+                            )
                           ],
                           gradient: LinearGradient(
                               begin: Alignment.centerLeft,
                               end: Alignment.centerRight,
                               colors: [Color(0xfffbb448), Color(0xfff7892b)])),
-                      child: HelperWidget().myTextStyle(
+                      child: isLoading?CircularProgressIndicator(strokeWidth: 5.0, valueColor: new AlwaysStoppedAnimation<Color>(Colors.white)):HelperWidget().myTextStyle(
                           context,
                           "MASUK",
                           TextAlign.center,

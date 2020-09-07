@@ -28,6 +28,7 @@ class MonitoringProvider {
 
   Future<Auth> login(String username, String password) async {
     final url = await userRepository.isServerAddress();
+    print("$url/auth");
     return await client.post("$url/auth", headers: {
       'username': 'netindo',
       'password':

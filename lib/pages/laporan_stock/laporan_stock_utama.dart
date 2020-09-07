@@ -4,9 +4,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:monitoring_apps/model/laporan_stock/laporanStockUtamaModel.dart';
 import 'package:monitoring_apps/model/lokasi.dart';
+import 'package:monitoring_apps/pages/helper/helper_widget.dart';
 import 'package:monitoring_apps/pages/helper/loadMoreQ.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_cupertino_date_picker/flutter_cupertino_date_picker.dart';
+import 'package:monitoring_apps/pages/laporan_stock/laporan_stock_detail.dart';
 import 'package:monitoring_apps/provider/lokasi_provider.dart';
 import 'package:monitoring_apps/utils/user_repository.dart';
 
@@ -19,25 +21,25 @@ class _LaporanStockUtamaState extends State<LaporanStockUtama> {
   int perpage = 10;
   LaporanStockUtamaModel laporanStockUtamaModel;
   bool isLoading = false, isRetry = false, isConnected = false;
-  final GlobalKey<RefreshIndicatorState> _refresh =
-      GlobalKey<RefreshIndicatorState>();
+  final GlobalKey<RefreshIndicatorState> _refresh = GlobalKey<RefreshIndicatorState>();
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+
   final userRepository = UserRepository();
 
   Map<String, String> get headers => {
-        "Content-Type": "application/json",
-        "username": "netindo",
-        "password":
-            "\$2b\$08\$hLMU6rEvNILCMaQbthARK.iCmDRO7jNbUB8CcvyRStqsHD4UQxjDO",
-        "Authorization":
-            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxIiwiaWF0IjoxNTk3MTM0NzM3LCJleHAiOjE1OTk3MjY3Mzd9.Dy6OCNL9BhUgUTPcQMlEXTbw5Dyv3UnG_Kyvs3WHicE",
-      };
+    "Content-Type": "application/json",
+    "username": "netindo",
+    "password": "\$2b\$08\$hLMU6rEvNILCMaQbthARK.iCmDRO7jNbUB8CcvyRStqsHD4UQxjDO",
+    "Authorization": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxIiwiaWF0IjoxNTk3MTM0NzM3LCJleHAiOjE1OTk3MjY3Mzd9.Dy6OCNL9BhUgUTPcQMlEXTbw5Dyv3UnG_Kyvs3WHicE",
+  };
   String _format = 'yyyy-MM-dd';
   TextEditingController _tgl_pertama = TextEditingController();
   TextEditingController _tgl_kedua = TextEditingController();
   DateTime _dateTime;
   String datefrom = '2020-01-01';
   String dateto = '2020-09-04';
-  String _valType = 'Pilih Lokasi'; //Ini untuk menyimpan value data friend
+  String _valType = 'Pilih Lokasi';
+  String nama_toko = '';
   List _type = [
     {"kode": "Pilih Lokasi", "nama": "Pilih Lokasi"}
   ];
@@ -50,15 +52,20 @@ class _LaporanStockUtamaState extends State<LaporanStockUtama> {
             "nama": value.result.data[x].nama,
           });
         }
-        _valType = _type[1].kode;
+        setState(() {
+          _valType=_type[1]['kode'];
+          nama_toko=_type[1]['nama'];
+        });
+        print("NAMA TOKO $nama_toko");
       }
+
     });
     loadData();
   }
 
   Future<void> loadData() async {
     final server = await userRepository.isServerAddress();
-    String url = "$server/report/stock?page=1?page=1&perpage=$perpage";
+    String url = "$server/report/stock?page=1&perpage=$perpage";
     if (_valType != 'Pilih Lokasi') {
       url += '&lokasi=$_valType';
     }
@@ -68,7 +75,7 @@ class _LaporanStockUtamaState extends State<LaporanStockUtama> {
     if (_tgl_kedua.text != 'yyyy-MM-dd') {
       url += '&dateto=${_tgl_kedua.text}';
     }
-    print("URL LAPORAN STOCK $url");
+    print('URL LAPORAN STOCK UTAMA $url');
     try {
       setState(() {
         isLoading = true;
@@ -76,7 +83,6 @@ class _LaporanStockUtamaState extends State<LaporanStockUtama> {
       });
       final jsonString =
           await http.get(url, headers: headers).timeout(Duration(seconds: 20));
-      print(jsonString);
       if (jsonString.statusCode == 200) {
         final jsonResponse = json.decode(jsonString.body);
         laporanStockUtamaModel =
@@ -131,7 +137,6 @@ class _LaporanStockUtamaState extends State<LaporanStockUtama> {
         });
       },
       onConfirm: (dateTime, List<int> index) {
-        print("INDEX $index");
         setState(() {
           _dateTime = dateTime;
           if (param == '1') {
@@ -147,6 +152,7 @@ class _LaporanStockUtamaState extends State<LaporanStockUtama> {
       },
     );
   }
+
 
   @override
   void initState() {
@@ -166,6 +172,7 @@ class _LaporanStockUtamaState extends State<LaporanStockUtama> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         elevation: 0.0,
         backgroundColor: Colors.transparent,
@@ -193,7 +200,7 @@ class _LaporanStockUtamaState extends State<LaporanStockUtama> {
                           controller: _tgl_pertama,
                           keyboardType: TextInputType.url,
                           decoration: InputDecoration(
-                            labelText: 'Tanggal Pertama',
+                            labelText: 'Dari',
                             hintText: 'yyyy-MM-dd',
                             hintStyle: TextStyle(
                                 color: Colors.black26,
@@ -208,8 +215,6 @@ class _LaporanStockUtamaState extends State<LaporanStockUtama> {
                               _tgl_pertama.text =
                                   '${_dateTime.year}-${_dateTime.month.toString().padLeft(2, '0')}-${_dateTime.day.toString().padLeft(2, '0')}';
                             });
-                            print(
-                                'TANGGAL PERTAMA = ${_dateTime.year}-${_dateTime.month.toString().padLeft(2, '0')}-${_dateTime.day.toString().padLeft(2, '0')}');
                           },
                         ),
                       ],
@@ -229,12 +234,13 @@ class _LaporanStockUtamaState extends State<LaporanStockUtama> {
                           controller: _tgl_kedua,
                           keyboardType: TextInputType.url,
                           decoration: InputDecoration(
-                            labelText: 'Tanggal Kedua',
+                            labelText: 'Sampai',
                             hintText: 'yyyy-MM-dd',
                             hintStyle: TextStyle(
                                 color: Colors.black26,
                                 fontWeight: FontWeight.bold,
-                                fontFamily: 'Rubik'),
+                                fontFamily: 'Rubik'
+                            ),
                           ),
                           onTap: () {
                             _showDatePicker('2');
@@ -252,29 +258,17 @@ class _LaporanStockUtamaState extends State<LaporanStockUtama> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      Text('Lokasi',
-                          style: TextStyle(
-                              fontSize: 12.0,
-                              color: Colors.black26,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: 'Rubik')),
-                      SizedBox(height: 5.0),
+                      Text("Lokasi",style: TextStyle(fontFamily: 'Rubik'),),
+                      SizedBox(height: 5.0,),
                       DropdownButton(
                         isDense: true,
                         isExpanded: true,
-                        hint: Text(
-                          "Pilih",
-                          style: TextStyle(fontFamily: 'Rubik'),
-                        ),
+                        hint: Text("Pilih", style: TextStyle(fontFamily: 'Rubik'),),
                         value: _valType,
                         items: _type.map((value) {
-                          print(value['kode']);
-                          return DropdownMenuItem(
-                            child: Text(value['nama'],
-                                style: TextStyle(
-                                    fontFamily: 'Rubik',
-                                    fontWeight: FontWeight.bold)),
-                            value: value['kode'],
+                          return DropdownMenuItem<String>(
+                            child: Text(value['nama'], style: TextStyle(fontFamily: 'Rubik', fontWeight: FontWeight.bold)),
+                            value: "${value['kode']}",
                           );
                         }).toList(),
                         onChanged: (value) {
@@ -325,10 +319,7 @@ class _LaporanStockUtamaState extends State<LaporanStockUtama> {
                   : isLoading
                       ? Container(
                           child: Center(
-                            child: CircularProgressIndicator(
-                                strokeWidth: 5.0,
-                                valueColor: new AlwaysStoppedAnimation<Color>(
-                                    Colors.black)),
+                            child: CircularProgressIndicator(strokeWidth: 5.0, valueColor: new AlwaysStoppedAnimation<Color>(Colors.black)),
                           ),
                         )
                       : _buildItem(context),
@@ -517,7 +508,29 @@ class _LaporanStockUtamaState extends State<LaporanStockUtama> {
                       )),
                 ),
               ),
-              onTap: () {});
+              onTap: () {
+                print(nama_toko);
+                if(_tgl_pertama.text=='yyyy-MM-dd'){
+                  return HelperWidget().showInSnackBar(_scaffoldKey, context, 'silahkan pilih tanggal pertama', 'failed');
+                }
+                else if(_tgl_kedua.text=='yyyy-MM-dd'){
+                  return HelperWidget().showInSnackBar(_scaffoldKey, context, 'silahkan pilih tanggal kedua', 'failed');
+                }
+                else if(_valType=='Pilih Lokasi'){
+                  return HelperWidget().showInSnackBar(_scaffoldKey, context, 'silahkan pilih lokasi', 'failed');
+                }
+                else{
+                  Navigator.of(context).push(CupertinoPageRoute(builder: (_) => LaporanStockDetail(
+                    datefrom: _tgl_pertama.text,
+                    dateto: _tgl_kedua.text,
+                    lokasi: _valType,
+                    kdLokasi: _valType,
+                    kdbrg: laporanStockUtamaModel.result.data[index].kdBrg,
+                    nmbrg: laporanStockUtamaModel.result.data[index].nmBrg,
+                  )));
+                }
+
+              });
         },
       ),
       whenEmptyLoad: true,
