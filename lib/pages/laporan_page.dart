@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cupertino_date_picker/flutter_cupertino_date_picker.dart';
 import 'package:monitoring_apps/model/laporanPenjualan.dart';
+import 'package:monitoring_apps/pages/helper/loadMoreQ.dart';
 import 'package:monitoring_apps/pages/laporan_page_detail.dart';
 import 'package:monitoring_apps/provider/lokasi_provider.dart';
 import 'package:monitoring_apps/provider/penjualan_provider.dart';
@@ -139,7 +140,14 @@ class _LaporanPageState extends State<LaporanPage>
       },
     );
   }
-
+  Future<bool> _loadMore() async {
+    await Future.delayed(Duration(seconds: 0, milliseconds: 2000));
+    setState(() {
+      perpage = perpage += 10;
+    });
+    loadData();
+    return true;
+  }
   @override
   void initState() {
     // TODO: implement initState
@@ -279,126 +287,133 @@ class _LaporanPageState extends State<LaporanPage>
   }
 
   Widget _buildItem(BuildContext context){
-    return laporanPenjualan.result.data.length>0?ListView.builder(
-      itemCount: laporanPenjualan.result.data.length,
-      itemBuilder: (BuildContext context, int index) {
-        return GestureDetector(
-            child:Padding(
-              padding: EdgeInsets.only(bottom: 16.0),
-              child: Align(
-                alignment: Alignment.topCenter,
-                child: SizedBox.fromSize(
-                    size: Size.fromHeight(200.0),
-                    child: Stack(
-                      fit: StackFit.expand,
-                      children: <Widget>[
-                        Container(
-                          margin: EdgeInsets.only(top: 24.0),
-                          child: Material(
-                            elevation: 14.0,
-                            borderRadius: BorderRadius.circular(12.0),
-                            shadowColor: Color(0x802196F3),
-                            color: Colors.white,
-                            child: Padding(
-                              padding: EdgeInsets.all(24.0),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: <Widget>[
-                                  Column(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: <Widget>[
-                                      Text('${laporanPenjualan.result.data[index].kdTrx} (${laporanPenjualan.result.data[index].jenisTrx})', style: TextStyle(color: Colors.blueAccent)),
-                                      Column(
-                                        mainAxisAlignment: MainAxisAlignment.start,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: <Widget>[
-                                          Container(
-                                            width: MediaQuery.of(context).size.width*0.5,
-                                            child: Text('${laporanPenjualan.result.data[index].nama}', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w700, fontSize: 20.0)),
-                                          ),
+    return LoadMoreQ(
+      child: ListView.builder(
+        itemCount: laporanPenjualan.result.data.length,
+        itemBuilder: (BuildContext context, int index) {
+          return GestureDetector(
+              child:Padding(
+                padding: EdgeInsets.only(bottom: 16.0),
+                child: Align(
+                  alignment: Alignment.topCenter,
+                  child: SizedBox.fromSize(
+                      size: Size.fromHeight(200.0),
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: <Widget>[
+                          Container(
+                            margin: EdgeInsets.only(top: 24.0),
+                            child: Material(
+                              elevation: 14.0,
+                              borderRadius: BorderRadius.circular(12.0),
+                              shadowColor: Color(0x802196F3),
+                              color: Colors.white,
+                              child: Padding(
+                                padding: EdgeInsets.all(24.0),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    Column(
+                                      mainAxisAlignment: MainAxisAlignment.start,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: <Widget>[
+                                        Text('${laporanPenjualan.result.data[index].kdTrx} (${laporanPenjualan.result.data[index].jenisTrx})', style: TextStyle(color: Colors.blueAccent)),
+                                        Column(
+                                          mainAxisAlignment: MainAxisAlignment.start,
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: <Widget>[
+                                            Container(
+                                              width: MediaQuery.of(context).size.width*0.5,
+                                              child: Text('${laporanPenjualan.result.data[index].nama}', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w700, fontSize: 20.0)),
+                                            ),
 
-                                          Container(
-                                            margin: const EdgeInsets.only(top: 2.0),
-                                            child: Text('${laporanPenjualan.result.data[index].lokasi}', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500, fontSize: 17.0)),
-                                          ),
-                                          Container(
-                                            margin: const EdgeInsets.only(top: 0.0),
-                                            child: Text('${laporanPenjualan.result.data[index].tgl}', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500, fontSize: 15.0)),
-                                          ),
-                                          Container(
-                                            margin: const EdgeInsets.only(top: 4.0),
-                                            child: Text('Subtotal: ${laporanPenjualan.result.data[index].st}0', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500, fontSize: 15.0)),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                  /// Infos
-                                  Row(
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: <Widget>[
-                                      Row(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          crossAxisAlignment: CrossAxisAlignment.center,
-                                          children: <Widget>[
-                                            Text('Total: ', style: TextStyle()),
-                                            Text(laporanPenjualan.result.data[index].gt, style: TextStyle()),
-                                          ]
-                                      ),
-                                      Row(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          crossAxisAlignment: CrossAxisAlignment.center,
-                                          children: <Widget>[
-                                            Text('Status: ', style: TextStyle()),
-                                            Padding(
-                                              padding: EdgeInsets.symmetric(horizontal: 4.0),
-                                              child: Material(
-                                                borderRadius: BorderRadius.circular(8.0),
-                                                color: Colors.green,
-                                                child: Padding(
-                                                  padding: EdgeInsets.all(4.0),
-                                                  child: Text('${laporanPenjualan.result.data[index].status}', style: TextStyle(color: Colors.white)),
+                                            Container(
+                                              margin: const EdgeInsets.only(top: 2.0),
+                                              child: Text('${laporanPenjualan.result.data[index].lokasi}', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500, fontSize: 17.0)),
+                                            ),
+                                            Container(
+                                              margin: const EdgeInsets.only(top: 0.0),
+                                              child: Text('${laporanPenjualan.result.data[index].tgl}', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500, fontSize: 15.0)),
+                                            ),
+                                            Container(
+                                              margin: const EdgeInsets.only(top: 4.0),
+                                              child: Text('Subtotal: ${laporanPenjualan.result.data[index].st}0', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500, fontSize: 15.0)),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                    /// Infos
+                                    Row(
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: <Widget>[
+                                        Row(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            crossAxisAlignment: CrossAxisAlignment.center,
+                                            children: <Widget>[
+                                              Text('Total: ', style: TextStyle()),
+                                              Text(laporanPenjualan.result.data[index].gt, style: TextStyle()),
+                                            ]
+                                        ),
+                                        Row(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            crossAxisAlignment: CrossAxisAlignment.center,
+                                            children: <Widget>[
+                                              Text('Status: ', style: TextStyle()),
+                                              Padding(
+                                                padding: EdgeInsets.symmetric(horizontal: 4.0),
+                                                child: Material(
+                                                  borderRadius: BorderRadius.circular(8.0),
+                                                  color: Colors.green,
+                                                  child: Padding(
+                                                    padding: EdgeInsets.all(4.0),
+                                                    child: Text('${laporanPenjualan.result.data[index].status}', style: TextStyle(color: Colors.white)),
+                                                  ),
                                                 ),
                                               ),
-                                            ),
-                                          ]
-                                      )
-                                    ],
-                                  ),
+                                            ]
+                                        )
+                                      ],
+                                    ),
 
 
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        /// Item image
-                        Align(
-                          alignment: Alignment.topRight,
-                          child: Padding(
-                            padding: EdgeInsets.only(right: 16.0),
-                            child: SizedBox.fromSize(
-                              size: Size.fromRadius(54.0),
-                              child: Material(
-                                elevation: 20.0,
-                                shadowColor: Color(0x802196F3),
-                                shape: CircleBorder(),
-                                child: Image.asset('res/shoes1.png'),
+                          /// Item image
+                          Align(
+                            alignment: Alignment.topRight,
+                            child: Padding(
+                              padding: EdgeInsets.only(right: 16.0),
+                              child: SizedBox.fromSize(
+                                size: Size.fromRadius(54.0),
+                                child: Material(
+                                  elevation: 20.0,
+                                  shadowColor: Color(0x802196F3),
+                                  shape: CircleBorder(),
+                                  child: Image.asset('res/shoes1.png'),
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      ],
-                    )
+                        ],
+                      )
+                  ),
                 ),
               ),
-            ),
-            onTap: () => Navigator.of(context).push(new CupertinoPageRoute(builder: (_) =>  LaporanPageDetail('${laporanPenjualan.result.data[index].kdTrx}')))
-        );
-      },
-    ):Text('no data');
+              onTap: () => Navigator.of(context).push(new CupertinoPageRoute(builder: (_) =>  LaporanPageDetail('${laporanPenjualan.result.data[index].kdTrx}')))
+          );
+        },
+      ),
+      whenEmptyLoad: true,
+      delegate: DefaultLoadMoreDelegate(),
+      textBuilder: DefaultLoadMoreTextBuilder.english,
+      isFinish: laporanPenjualan.result.data.length < perpage,
+      onLoadMore: _loadMore,
+    );
   }
 }
