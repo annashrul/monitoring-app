@@ -51,7 +51,7 @@ class _LoginPageState extends State<LoginPage> {
       return HelperWidget().showInSnackBar(_scaffoldKey, context, 'silahkan masukan alamat server', 'failed');
     } else {
       final prefs = await SharedPreferences.getInstance();
-      prefs.setString('serverAddress', serverAddressController.text);
+      prefs.setString('serverAddress', "http://"+serverAddressController.text);
       setState(() {
         isServer=false;
       });

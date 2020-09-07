@@ -9,8 +9,9 @@ class MonitoringProvider {
   Client client = Client();
   final userRepository = UserRepository();
   Future<Monitoring> getDashboard() async {
-    final url = await userRepository.isServerAddress();
-    final response =await client.get("$url/site/monitoring");
+    final url = "http://192.168.100.10:3000";
+    // final url = await userRepository.isServerAddress();
+    final response = await client.get("$url/site/monitoring");
     if (response.statusCode == 200) {
       return monitoringFromJson(response.body);
     } else {
@@ -18,10 +19,9 @@ class MonitoringProvider {
     }
   }
 
-  Future<Auth> login(String username, String password) async{
+  Future<Auth> login(String username, String password) async {
     final url = await userRepository.isServerAddress();
-    return await client.post("$url/auth/login",
-      body: {
+    return await client.post("$url/api/login_monitoring", body: {
       'username': '$username',
       'password': '$password',
     }).then((Response response) {
@@ -29,7 +29,4 @@ class MonitoringProvider {
       return results;
     });
   }
-
-
-
 }

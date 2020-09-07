@@ -124,7 +124,6 @@ class _LaporanStockUtamaState extends State<LaporanStockUtama> {
   }
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     loadData();
     _tgl_pertama.text = _format;

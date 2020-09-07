@@ -43,7 +43,7 @@ class Result {
     });
 
     String hourly;
-    List<Monthly> monthly;
+    Monthly monthly;
     String penjualan;
     String transaksi;
     String netSales;
@@ -51,7 +51,7 @@ class Result {
 
     factory Result.fromJson(Map<String, dynamic> json) => Result(
         hourly: json["hourly"],
-        monthly: List<Monthly>.from(json["monthly"].map((x) => Monthly.fromJson(x))),
+        monthly: Monthly.fromJson(json["monthly"]),
         penjualan: json["penjualan"],
         transaksi: json["transaksi"],
         netSales: json["net_sales"],
@@ -60,7 +60,7 @@ class Result {
 
     Map<String, dynamic> toJson() => {
         "hourly": hourly,
-        "monthly": List<dynamic>.from(monthly.map((x) => x.toJson())),
+        "monthly": monthly.toJson(),
         "penjualan": penjualan,
         "transaksi": transaksi,
         "net_sales": netSales,
@@ -70,20 +70,24 @@ class Result {
 
 class Monthly {
     Monthly({
-        this.name,
-        this.data,
+        this.labelLokasi,
+        this.bulanIni,
+        this.bulanLalu,
     });
 
-    String name;
-    List<int> data;
+    List<String> labelLokasi;
+    List<int> bulanIni;
+    List<int> bulanLalu;
 
     factory Monthly.fromJson(Map<String, dynamic> json) => Monthly(
-        name: json["name"],
-        data: List<int>.from(json["data"].map((x) => x)),
+        labelLokasi: List<String>.from(json["label_lokasi"].map((x) => x)),
+        bulanIni: List<int>.from(json["bulan_ini"].map((x) => x)),
+        bulanLalu: List<int>.from(json["bulan_lalu"].map((x) => x)),
     );
 
     Map<String, dynamic> toJson() => {
-        "name": name,
-        "data": List<dynamic>.from(data.map((x) => x)),
+        "label_lokasi": List<dynamic>.from(labelLokasi.map((x) => x)),
+        "bulan_ini": List<dynamic>.from(bulanIni.map((x) => x)),
+        "bulan_lalu": List<dynamic>.from(bulanLalu.map((x) => x)),
     };
 }

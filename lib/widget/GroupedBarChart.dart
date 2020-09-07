@@ -1,6 +1,7 @@
 /// Bar chart example
 import 'package:flutter/material.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
+import 'package:monitoring_apps/model/monitoring.dart';
 
 class GroupedBarChart extends StatelessWidget {
   final List<charts.Series> seriesList;
@@ -8,14 +9,13 @@ class GroupedBarChart extends StatelessWidget {
 
   GroupedBarChart(this.seriesList, {this.animate});
 
-  factory GroupedBarChart.withSampleData() {
+  factory GroupedBarChart.withSampleData(Monthly data) {
     return new GroupedBarChart(
-      _createSampleData(),
+      _createSampleData(data),
       // Disable animations for image tests.
       animate: false,
     );
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -27,28 +27,31 @@ class GroupedBarChart extends StatelessWidget {
   }
 
   /// Create series list with multiple series
-  static List<charts.Series<OrdinalSales, String>> _createSampleData() {
-    final desktopSalesData = [
-      new OrdinalSales('Toko 1', 5),
-      new OrdinalSales('Toko 2', 25)
-    ];
-
-    final tableSalesData = [
-      new OrdinalSales('Toko 1', 25),
-      new OrdinalSales('Toko 2', 50),
-    ];
-
+  static List<charts.Series<OrdinalSales, String>> _createSampleData(
+      Monthly data) {
+    List<OrdinalSales> desktopSalesData = [];
+    List<OrdinalSales> tableSalesData = [];
+    data.labelLokasi.asMap().forEach((index, value) => {
+          desktopSalesData.insert(
+            index,
+            new OrdinalSales(data.labelLokasi[index], data.bulanLalu[index]),
+          ),
+          tableSalesData.insert(
+            index,
+            new OrdinalSales(data.labelLokasi[index], data.bulanIni[index]),
+          )
+        });
 
     return [
       new charts.Series<OrdinalSales, String>(
         id: 'Bulan Ini',
-        domainFn: (OrdinalSales sales, _) => sales.year,
+        domainFn: (OrdinalSales sales, _) => sales.month,
         measureFn: (OrdinalSales sales, _) => sales.sales,
         data: desktopSalesData,
       ),
       new charts.Series<OrdinalSales, String>(
         id: 'Bulan Lalu',
-        domainFn: (OrdinalSales sales, _) => sales.year,
+        domainFn: (OrdinalSales sales, _) => sales.month,
         measureFn: (OrdinalSales sales, _) => sales.sales,
         data: tableSalesData,
       )
@@ -58,8 +61,8 @@ class GroupedBarChart extends StatelessWidget {
 
 /// Sample ordinal data type.
 class OrdinalSales {
-  final String year;
+  final String month;
   final int sales;
 
-  OrdinalSales(this.year, this.sales);
+  OrdinalSales(this.month, this.sales);
 }
