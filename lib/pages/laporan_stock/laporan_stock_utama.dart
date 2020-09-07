@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:monitoring_apps/model/laporan_stock/laporanStockUtamaModel.dart';
-import 'package:monitoring_apps/model/lokasi.dart';
 import 'package:monitoring_apps/pages/helper/loadMoreQ.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_cupertino_date_picker/flutter_cupertino_date_picker.dart';

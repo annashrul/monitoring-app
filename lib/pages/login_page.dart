@@ -5,6 +5,7 @@ import 'package:monitoring_apps/pages/main_page.dart';
 import 'package:monitoring_apps/provider/monitoring_provider.dart';
 import 'package:monitoring_apps/utils/user_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 
 class LoginPage extends StatefulWidget {
   static String tag = 'login-page';
@@ -87,13 +88,25 @@ class _LoginPageState extends State<LoginPage> {
       return HelperWidget().showInSnackBar(
           _scaffoldKey, context, 'silahkan masukan alamat server', 'failed');
     } else {
-      final prefs = await SharedPreferences.getInstance();
-      prefs.setString(
-          'serverAddress', 'http://' + serverAddressController.text);
-      setState(() {
-        isServer = false;
-      });
-      print("SERVER ADDRESS RUNNING ON = ${prefs.getString('serverAddress')}");
+      try {
+        String url = 'http://' + serverAddressController.text + "/auth/check";
+
+        final jsonString = await http.get(url).timeout(Duration(seconds: 20));
+        print(jsonString);
+        if (jsonString.statusCode == 200) {
+          final prefs = await SharedPreferences.getInstance();
+          prefs.setString(
+              'serverAddress', 'http://' + serverAddressController.text);
+          setState(() {
+            isServer = false;
+          });
+        } else {
+          throw Exception('Failed to load photos');
+        }
+      } catch (e) {
+        return HelperWidget().showInSnackBar(_scaffoldKey, context,
+            'Tidak dapat tersambung dengan server.', 'failed');
+      }
     }
   }
 
@@ -104,8 +117,7 @@ class _LoginPageState extends State<LoginPage> {
     // TODO: implement initState
     super.initState();
     UserRepository().isServerAddress().then((val) {
-      print("IS SERVER $val");
-      checkServer = false;
+      checkServer = true;
       setState(() {});
     });
   }

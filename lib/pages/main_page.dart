@@ -153,8 +153,6 @@ class _MainPageState extends State<MainPage> {
                                     _tgl_pertama.text =
                                         '${_dateTime.year}-${_dateTime.month.toString().padLeft(2, '0')}-${_dateTime.day.toString().padLeft(2, '0')}';
                                   });
-                                  print(
-                                      'TANGGAL PERTAMA = ${_dateTime.year}-${_dateTime.month.toString().padLeft(2, '0')}-${_dateTime.day.toString().padLeft(2, '0')}');
                                 },
                               ),
                             ],
