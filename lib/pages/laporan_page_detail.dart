@@ -29,7 +29,7 @@ class _LaporanPageDetailState extends State<LaporanPageDetail>
           onPressed: () => Navigator.of(context).pop(),
           icon: Icon(Icons.arrow_back, color: Colors.black),
         ),
-        title: Text('Detail Laporan Penjualan', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w700)),
+        title: Text('Detail Laporan Penjualan', style: TextStyle(fontFamily:'Rubik',color: Colors.black, fontWeight: FontWeight.w700)),
 
       ),
       body: Padding(

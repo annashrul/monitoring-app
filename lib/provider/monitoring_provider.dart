@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' show Client, Response;
+import 'package:monitoring_apps/config/config.dart';
 import 'package:monitoring_apps/model/auth.dart';
 import 'package:monitoring_apps/model/monitoring.dart';
 import 'package:monitoring_apps/utils/user_repository.dart';
@@ -9,12 +10,12 @@ class MonitoringProvider {
   Client client = Client();
   final userRepository = UserRepository();
   Map<String, String> get headers => {
-        "Content-Type": "application/json",
-        "username": "netindo",
-        "password":
-            "\$2b\$08\$hLMU6rEvNILCMaQbthARK.iCmDRO7jNbUB8CcvyRStqsHD4UQxjDO",
+    "Content-Type": "application/json",
+    "username": Config().username,
+    "password": Config().username,
+    // "Authorization": Config().token,
         // "Authorization": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxIiwiaWF0IjoxNTk3MTM0NzM3LCJleHAiOjE1OTk3MjY3Mzd9.Dy6OCNL9BhUgUTPcQMlEXTbw5Dyv3UnG_Kyvs3WHicE",
-      };
+  };
   Future<Monitoring> getDashboard( var datefrom,var dateto, var lokasi) async {
     final url = await userRepository.isServerAddress();
     print("URL DASHBOARD ${"$url/site/monitoring?dateto=$dateto&datefrom=$datefrom&lokasi=$lokasi"}");

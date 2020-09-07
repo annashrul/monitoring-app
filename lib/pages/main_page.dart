@@ -17,6 +17,8 @@ import 'package:monitoring_apps/utils/user_repository.dart' show UserRepository;
 import 'package:monitoring_apps/widget/GroupedBarChart.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 
+import 'helper/helper_widget.dart';
+
 class MainPage extends StatefulWidget {
   @override
   _MainPageState createState() => _MainPageState();
@@ -61,7 +63,7 @@ class _MainPageState extends State<MainPage> {
         });
       }
     });
-    loadData();
+
   }
 
   Future<void> loadData() async{
@@ -131,16 +133,10 @@ class _MainPageState extends State<MainPage> {
         child: Scaffold(
             appBar: AppBar(
               iconTheme: IconThemeData(color: Colors.black),
-              automaticallyImplyLeading:
-                  false, // Used for removing back buttoon.
+              automaticallyImplyLeading: false, // Used for removing back buttoon.
               elevation: 2.0,
               backgroundColor: Colors.white,
-              title: Text('Monitoring $nama',
-                  style: TextStyle(
-                      fontFamily: 'Rubik',
-                      color: Colors.black,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 23.0)),
+              title: Text('Monitoring $nama', style: TextStyle(fontFamily: 'Rubik', color: Colors.black, fontWeight: FontWeight.w600, fontSize: 23.0)),
               actions: <Widget>[
                 PopupMenuButton<String>(
                   onSelected: handleClick,
@@ -148,10 +144,7 @@ class _MainPageState extends State<MainPage> {
                     return {"Logout"}.map((String choice) {
                       return PopupMenuItem<String>(
                         value: choice,
-                        child: Text(
-                          choice,
-                          style: TextStyle(fontFamily: 'Rubik'),
-                        ),
+                        child: Text(choice, style: TextStyle(fontFamily: 'Rubik'),),
                       );
                     }).toList();
                   },
@@ -171,13 +164,7 @@ class _MainPageState extends State<MainPage> {
                 mainAxisSpacing: 12.0,
                 padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                 children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      "Dashboard",
-                      style: Theme.of(context).textTheme.headline4,
-                    ),
-                  ),
+
                   Row(
                     children: <Widget>[
                       new Flexible(
@@ -275,9 +262,6 @@ class _MainPageState extends State<MainPage> {
                                   setState(() {
                                     _valType = value;
                                   });
-                                  if (_valType != 'Pilih Lokasi') {
-                                    loadData();
-                                  }
                                 },
                               )
                             ],
@@ -285,6 +269,36 @@ class _MainPageState extends State<MainPage> {
                         ),
                       ),
                     ],
+                  ),
+
+                  InkWell(
+                    onTap: () {
+                      loadData();
+                    },
+                    child: Container(
+                        width: MediaQuery.of(context).size.width,
+                        padding: EdgeInsets.symmetric(vertical: 15),
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.all(Radius.circular(5)),
+                            boxShadow: <BoxShadow>[
+                              BoxShadow(
+                                  color: Colors.grey.shade200,
+                                  offset: Offset(2, 4),
+                                  blurRadius: 5,
+                                  spreadRadius: 2)
+                            ],
+                            gradient: LinearGradient(
+                                begin: Alignment.centerLeft,
+                                end: Alignment.centerRight,
+                                colors: [Color(0xfffbb448), Color(0xfff7892b)])),
+                        child: HelperWidget().myTextStyle(
+                            context,
+                            "CARI",
+                            TextAlign.center,
+                            20.0,
+                            FontWeight.bold,
+                            Colors.white)),
                   ),
                   //GrossSales
                   _buildTile(
@@ -298,7 +312,7 @@ class _MainPageState extends State<MainPage> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
-                                Text('Gross Sales', style: TextStyle(color: Colors.blueAccent)),
+                                Text('Gross Sales', style: TextStyle(color: Colors.blueAccent,fontFamily: 'Rubik')),
                                 Text('$penjualan',
                                     style: TextStyle(
                                         color: Colors.black,
@@ -318,7 +332,6 @@ class _MainPageState extends State<MainPage> {
                           ]),
                     ),
                   ),
-
                   // TRX
                   _buildTile(
                     Padding(
@@ -347,7 +360,6 @@ class _MainPageState extends State<MainPage> {
                           ]),
                     ),
                   ),
-
                   // NET SALES
                   _buildTile(
                     Padding(
@@ -376,7 +388,6 @@ class _MainPageState extends State<MainPage> {
                           ]),
                     ),
                   ),
-
                   //HOURYLY
                   _buildTile(
                     Padding(
@@ -414,7 +425,6 @@ class _MainPageState extends State<MainPage> {
                           ],
                         )),
                   ),
-
                   //AVGTRX
                   _buildTile(
                     Padding(
@@ -448,7 +458,6 @@ class _MainPageState extends State<MainPage> {
                           ]),
                     ),
                   ),
-
                   //Monthly Sales Amount
                   _buildTile(
                     Padding(
@@ -509,7 +518,6 @@ class _MainPageState extends State<MainPage> {
                           ],
                         )),
                   ),
-
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Text(
@@ -541,8 +549,7 @@ class _MainPageState extends State<MainPage> {
                                     fontSize: 20.0))
                           ]),
                     ),
-                    onTap: () => Navigator.of(context)
-                        .push(MaterialPageRoute(builder: (_) => LaporanPage())),
+                    onTap: () => Navigator.of(context).push(CupertinoPageRoute(builder: (_) => LaporanPage())).whenComplete(loadData),
                   ),
                   //Laporan Stock
                   _buildTile(
@@ -568,10 +575,8 @@ class _MainPageState extends State<MainPage> {
                                     fontSize: 20.0))
                           ]),
                     ),
-                    onTap: () => Navigator.of(context).push(
-                        CupertinoPageRoute(builder: (_) => LaporanStockUtama())),
+                    onTap: () => Navigator.of(context).push(CupertinoPageRoute(builder: (_) => LaporanStockUtama())).whenComplete(loadData),
                   ),
-
                   _buildTile(
                     Padding(
                       padding: const EdgeInsets.all(24.0),
@@ -602,13 +607,13 @@ class _MainPageState extends State<MainPage> {
                                     )))
                           ]),
                     ),
-                    onTap: () => Navigator.of(context).push(
-                        CupertinoPageRoute(builder: (_) => LaporanMutasi())),
+                    onTap: () => Navigator.of(context).push(CupertinoPageRoute(builder: (_) => LaporanMutasi())).whenComplete(loadData),
                   )
                 ],
                 staggeredTiles: [
-                  StaggeredTile.extent(2, 50.0),
+                  // StaggeredTile.extent(2, 50.0),
                   StaggeredTile.extent(2, 70.0),
+                  StaggeredTile.extent(2, 50.0),
                   StaggeredTile.extent(2, 110.0),
                   StaggeredTile.extent(1, 180.0),
                   StaggeredTile.extent(1, 180.0),
@@ -635,7 +640,7 @@ class _MainPageState extends State<MainPage> {
       onMonthChangeStartWithFirstDate: true,
       pickerTheme: DateTimePickerTheme(
         showTitle: true,
-        confirm: Text('custom Done', style: TextStyle(color: Colors.red)),
+        confirm: Text('Selesai', style: TextStyle(color: Colors.red,fontFamily: 'Rubik',fontWeight:FontWeight.bold)),
       ),
       minDateTime: DateTime.parse(MIN_DATETIME),
       maxDateTime: DateTime.parse(MAX_DATETIME),
@@ -669,7 +674,7 @@ class _MainPageState extends State<MainPage> {
     return Material(
         elevation: 14.0,
         borderRadius: BorderRadius.circular(12.0),
-        shadowColor: Color(0x802196F3),
+        shadowColor: Colors.white,
         child: InkWell(
             // Do onTap() if it isn't null, otherwise do print()
             onTap: onTap != null

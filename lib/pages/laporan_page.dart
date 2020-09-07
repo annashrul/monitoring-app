@@ -3,7 +3,10 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cupertino_date_picker/flutter_cupertino_date_picker.dart';
+import 'package:intl/intl.dart';
+import 'package:monitoring_apps/config/config.dart';
 import 'package:monitoring_apps/model/laporanPenjualan.dart';
+import 'package:monitoring_apps/pages/helper/helper_widget.dart';
 import 'package:monitoring_apps/pages/helper/loadMoreQ.dart';
 import 'package:monitoring_apps/pages/laporan_page_detail.dart';
 import 'package:monitoring_apps/provider/lokasi_provider.dart';
@@ -25,9 +28,9 @@ class _LaporanPageState extends State<LaporanPage>
   final GlobalKey<RefreshIndicatorState> _refresh = GlobalKey<RefreshIndicatorState>();
   Map<String, String> get headers => {
     "Content-Type": "application/json",
-    "username": "netindo",
-    "password": "\$2b\$08\$hLMU6rEvNILCMaQbthARK.iCmDRO7jNbUB8CcvyRStqsHD4UQxjDO",
-    "Authorization": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxIiwiaWF0IjoxNTk3MTM0NzM3LCJleHAiOjE1OTk3MjY3Mzd9.Dy6OCNL9BhUgUTPcQMlEXTbw5Dyv3UnG_Kyvs3WHicE",
+    "username": Config().username,
+    "password": Config().username,
+    "Authorization": Config().token,
   };
   LaporanPenjualan laporanPenjualan;
   bool isLoading=false;
@@ -51,7 +54,6 @@ class _LaporanPageState extends State<LaporanPage>
         });
       }
     });
-    loadData();
   }
 
   Future<void> loadData() async {
@@ -110,7 +112,7 @@ class _LaporanPageState extends State<LaporanPage>
       onMonthChangeStartWithFirstDate: true,
       pickerTheme: DateTimePickerTheme(
         showTitle: true,
-        confirm: Text('custom Done', style: TextStyle(color: Colors.red)),
+        confirm: Text('Selesai', style: TextStyle(color: Colors.red,fontFamily: 'Rubik',fontWeight:FontWeight.bold)),
       ),
       minDateTime: DateTime.parse(MIN_DATETIME),
       maxDateTime: DateTime.parse(MAX_DATETIME),
@@ -130,11 +132,9 @@ class _LaporanPageState extends State<LaporanPage>
           if (param == '1') {
             _tgl_pertama.text =
             '${_dateTime.year}-${_dateTime.month.toString().padLeft(2, '0')}-${_dateTime.day.toString().padLeft(2, '0')}';
-            loadData();
           } else {
             _tgl_kedua.text =
             '${_dateTime.year}-${_dateTime.month.toString().padLeft(2, '0')}-${_dateTime.day.toString().padLeft(2, '0')}';
-            loadData();
           }
         });
       },
@@ -169,8 +169,7 @@ class _LaporanPageState extends State<LaporanPage>
           onPressed: () => Navigator.of(context).pop(),
           icon: Icon(Icons.arrow_back, color: Colors.black),
         ),
-        title: Text('Laporan Penjualan', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w700)),
-
+        title: Text('Laporan Penjualan', style: TextStyle(fontFamily:'Rubik',color: Colors.black, fontWeight: FontWeight.w700)),
       ),
       body: Column(
         children: <Widget>[
@@ -256,9 +255,7 @@ class _LaporanPageState extends State<LaporanPage>
                           setState(() {
                             _valType = value;
                           });
-                          if (_valType != 'Pilih Lokasi') {
-                            loadData();
-                          }
+
                         },
                       )
                     ],
@@ -266,6 +263,38 @@ class _LaporanPageState extends State<LaporanPage>
                 ),
               ),
             ],
+          ),
+          Padding(
+            padding: EdgeInsets.all(8.0),
+            child: InkWell(
+              onTap: () {
+                loadData();
+              },
+              child: Container(
+                  width: MediaQuery.of(context).size.width,
+                  padding: EdgeInsets.symmetric(vertical: 15),
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.all(Radius.circular(5)),
+                      boxShadow: <BoxShadow>[
+                        BoxShadow(
+                            color: Colors.grey.shade200,
+                            offset: Offset(2, 4),
+                            blurRadius: 5,
+                            spreadRadius: 2)
+                      ],
+                      gradient: LinearGradient(
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
+                          colors: [Color(0xfffbb448), Color(0xfff7892b)])),
+                  child: HelperWidget().myTextStyle(
+                      context,
+                      "CARI",
+                      TextAlign.center,
+                      20.0,
+                      FontWeight.bold,
+                      Colors.white)),
+            ),
           ),
           Expanded(
             child: RefreshIndicator(
@@ -275,7 +304,7 @@ class _LaporanPageState extends State<LaporanPage>
                   child: Center(
                     child: CircularProgressIndicator(strokeWidth: 5.0, valueColor: new AlwaysStoppedAnimation<Color>(Colors.black)),
                   ),
-                ):_buildItem(context) ,
+                ):Scrollbar(child: _buildItem(context)) ,
               ),
               onRefresh: loadData,
               key: _refresh,
@@ -287,10 +316,11 @@ class _LaporanPageState extends State<LaporanPage>
   }
 
   Widget _buildItem(BuildContext context){
-    return LoadMoreQ(
+    return laporanPenjualan.result.data.length > 0 ?LoadMoreQ(
       child: ListView.builder(
         itemCount: laporanPenjualan.result.data.length,
         itemBuilder: (BuildContext context, int index) {
+          var ymd = DateFormat.yMMMMd().format(laporanPenjualan.result.data[index].tgl.toLocal());
           return GestureDetector(
               child:Padding(
                 padding: EdgeInsets.only(bottom: 16.0),
@@ -305,8 +335,8 @@ class _LaporanPageState extends State<LaporanPage>
                             margin: EdgeInsets.only(top: 24.0),
                             child: Material(
                               elevation: 14.0,
-                              borderRadius: BorderRadius.circular(12.0),
-                              shadowColor: Color(0x802196F3),
+                              borderRadius: BorderRadius.circular(0.0),
+                              shadowColor: Colors.transparent,
                               color: Colors.white,
                               child: Padding(
                                 padding: EdgeInsets.all(24.0),
@@ -318,27 +348,27 @@ class _LaporanPageState extends State<LaporanPage>
                                       mainAxisAlignment: MainAxisAlignment.start,
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: <Widget>[
-                                        Text('${laporanPenjualan.result.data[index].kdTrx} (${laporanPenjualan.result.data[index].jenisTrx})', style: TextStyle(color: Colors.blueAccent)),
+                                        Text('${laporanPenjualan.result.data[index].kdTrx} (${laporanPenjualan.result.data[index].jenisTrx})', style: TextStyle(fontFamily:'Rubik',color: Colors.blueAccent)),
                                         Column(
                                           mainAxisAlignment: MainAxisAlignment.start,
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: <Widget>[
                                             Container(
                                               width: MediaQuery.of(context).size.width*0.5,
-                                              child: Text('${laporanPenjualan.result.data[index].nama}', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w700, fontSize: 20.0)),
+                                              child: Text('${laporanPenjualan.result.data[index].nama}', style: TextStyle(fontFamily:'Rubik',color: Colors.black, fontWeight: FontWeight.w700, fontSize: 20.0)),
                                             ),
 
                                             Container(
                                               margin: const EdgeInsets.only(top: 2.0),
-                                              child: Text('${laporanPenjualan.result.data[index].lokasi}', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500, fontSize: 17.0)),
+                                              child: Text('${laporanPenjualan.result.data[index].lokasi}', style: TextStyle(fontFamily:'Rubik',color: Colors.black, fontWeight: FontWeight.w500, fontSize: 17.0)),
                                             ),
                                             Container(
                                               margin: const EdgeInsets.only(top: 0.0),
-                                              child: Text('${laporanPenjualan.result.data[index].tgl}', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500, fontSize: 15.0)),
+                                              child: Text('$ymd', style: TextStyle(fontFamily:'Rubik',color: Colors.black, fontWeight: FontWeight.w500, fontSize: 15.0)),
                                             ),
                                             Container(
                                               margin: const EdgeInsets.only(top: 4.0),
-                                              child: Text('Subtotal: ${laporanPenjualan.result.data[index].st}0', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500, fontSize: 15.0)),
+                                              child: Text('Subtotal: ${laporanPenjualan.result.data[index].st}0', style: TextStyle(fontFamily:'Rubik',color: Colors.black, fontWeight: FontWeight.w500, fontSize: 15.0)),
                                             ),
                                           ],
                                         ),
@@ -353,8 +383,8 @@ class _LaporanPageState extends State<LaporanPage>
                                             mainAxisAlignment: MainAxisAlignment.center,
                                             crossAxisAlignment: CrossAxisAlignment.center,
                                             children: <Widget>[
-                                              Text('Total: ', style: TextStyle()),
-                                              Text(laporanPenjualan.result.data[index].gt, style: TextStyle()),
+                                              Text('Total: ', style: TextStyle(fontFamily:'Rubik',)),
+                                              Text(laporanPenjualan.result.data[index].gt, style: TextStyle(fontFamily:'Rubik',)),
                                             ]
                                         ),
                                         Row(
@@ -369,7 +399,7 @@ class _LaporanPageState extends State<LaporanPage>
                                                   color: Colors.green,
                                                   child: Padding(
                                                     padding: EdgeInsets.all(4.0),
-                                                    child: Text('${laporanPenjualan.result.data[index].status}', style: TextStyle(color: Colors.white)),
+                                                    child: Text('${laporanPenjualan.result.data[index].status.toUpperCase()}', style: TextStyle(fontFamily:'Rubik',color: Colors.white,fontWeight: FontWeight.bold)),
                                                   ),
                                                 ),
                                               ),
@@ -393,9 +423,9 @@ class _LaporanPageState extends State<LaporanPage>
                                 size: Size.fromRadius(54.0),
                                 child: Material(
                                   elevation: 20.0,
-                                  shadowColor: Color(0x802196F3),
+                                  shadowColor: Colors.transparent,
                                   shape: CircleBorder(),
-                                  child: Image.asset('res/shoes1.png'),
+                                  child: Image.network('${Config().assetsNetwork}penjualan.png'),
                                 ),
                               ),
                             ),
@@ -414,6 +444,10 @@ class _LaporanPageState extends State<LaporanPage>
       textBuilder: DefaultLoadMoreTextBuilder.english,
       isFinish: laporanPenjualan.result.data.length < perpage,
       onLoadMore: _loadMore,
+    ) : Container(
+      child: Center(
+        child: Text("Data Tidak Tersedia", style: TextStyle(fontFamily: 'Rubik',fontWeight: FontWeight.bold),),
+      ),
     );
   }
 }

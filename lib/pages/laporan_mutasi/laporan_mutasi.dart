@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:monitoring_apps/config/config.dart';
 import 'package:monitoring_apps/model/laporanMutasiModel.dart';
 import 'package:monitoring_apps/model/lokasi.dart';
 import 'package:monitoring_apps/pages/helper/loadMoreQ.dart';
@@ -10,6 +11,7 @@ import 'package:flutter_cupertino_date_picker/flutter_cupertino_date_picker.dart
 import 'package:monitoring_apps/pages/laporan_mutasi/laporan_mutasi_detail.dart';
 import 'package:monitoring_apps/provider/lokasi_provider.dart';
 import 'package:monitoring_apps/utils/user_repository.dart';
+import 'package:monitoring_apps/pages/helper/helper_widget.dart';
 
 class LaporanMutasi extends StatefulWidget {
   @override
@@ -26,11 +28,9 @@ class _LaporanMutasiState extends State<LaporanMutasi> {
 
   Map<String, String> get headers => {
         "Content-Type": "application/json",
-        "username": "netindo",
-        "password":
-            "\$2b\$08\$hLMU6rEvNILCMaQbthARK.iCmDRO7jNbUB8CcvyRStqsHD4UQxjDO",
-        "Authorization":
-            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxIiwiaWF0IjoxNTk3MTM0NzM3LCJleHAiOjE1OTk3MjY3Mzd9.Dy6OCNL9BhUgUTPcQMlEXTbw5Dyv3UnG_Kyvs3WHicE",
+        "username": Config().username,
+        "password": Config().username,
+        "Authorization": Config().token,
       };
   String _format = 'yyyy-MM-dd';
   TextEditingController _tgl_pertama = TextEditingController();
@@ -54,19 +54,28 @@ class _LaporanMutasiState extends State<LaporanMutasi> {
         _valType = _type[1].kode;
       }
     });
-    loadData();
   }
 
   Future<void> loadData() async {
     final server = await userRepository.isServerAddress();
     String url = "$server/mutasi/report?page=1&perpage=$perpage";
+    var date = new DateTime.now().toString();
+    var dateParse = DateTime.parse(date);
+    var formattedDate = "${dateParse.year}-${dateParse.month.toString().padLeft(2, '0')}-${dateParse.day.toString().padLeft(2, '0')}";
+    String dateto=formattedDate,datefrom=formattedDate,lokasi='';
     if (_valType != 'Pilih Lokasi') {
       url += '&lokasi=$_valType';
     }
-    if (_tgl_pertama.text != 'yyyy-MM-dd') {
+    if (_tgl_pertama.text == 'yyyy-MM-dd') {
+      _tgl_pertama.text = formattedDate;
+      url += '&datefrom=${_tgl_pertama.text}';
+    }else{
       url += '&datefrom=${_tgl_pertama.text}';
     }
-    if (_tgl_kedua.text != 'yyyy-MM-dd') {
+    if (_tgl_kedua.text == 'yyyy-MM-dd') {
+      _tgl_kedua.text = formattedDate;
+      url += '&dateto=${_tgl_kedua.text}';
+    }else{
       url += '&dateto=${_tgl_kedua.text}';
     }
     print("URL LAPORAN STOCK $url");
@@ -116,7 +125,7 @@ class _LaporanMutasiState extends State<LaporanMutasi> {
       onMonthChangeStartWithFirstDate: true,
       pickerTheme: DateTimePickerTheme(
         showTitle: true,
-        confirm: Text('custom Done', style: TextStyle(color: Colors.red)),
+        confirm: Text('Selesai', style: TextStyle(color: Colors.red,fontFamily: 'Rubik',fontWeight:FontWeight.bold)),
       ),
       minDateTime: DateTime.parse(MIN_DATETIME),
       maxDateTime: DateTime.parse(MAX_DATETIME),
@@ -137,11 +146,9 @@ class _LaporanMutasiState extends State<LaporanMutasi> {
           if (param == '1') {
             _tgl_pertama.text =
                 '${_dateTime.year}-${_dateTime.month.toString().padLeft(2, '0')}-${_dateTime.day.toString().padLeft(2, '0')}';
-            loadData();
           } else {
             _tgl_kedua.text =
                 '${_dateTime.year}-${_dateTime.month.toString().padLeft(2, '0')}-${_dateTime.day.toString().padLeft(2, '0')}';
-            loadData();
           }
         });
       },
@@ -174,8 +181,7 @@ class _LaporanMutasiState extends State<LaporanMutasi> {
           onPressed: () => Navigator.of(context).pop(),
           icon: Icon(Icons.arrow_back, color: Colors.black),
         ),
-        title: Text('Laporan Mutasi',
-            style: TextStyle(color: Colors.black, fontWeight: FontWeight.w700)),
+        title: Text('Laporan Mutasi', style: TextStyle(fontFamily:'Rubik',color: Colors.black, fontWeight: FontWeight.w700)),
       ),
       body: Column(
         children: <Widget>[
@@ -281,9 +287,7 @@ class _LaporanMutasiState extends State<LaporanMutasi> {
                           setState(() {
                             _valType = value;
                           });
-                          if (_valType != 'Pilih Lokasi') {
-                            loadData();
-                          }
+
                         },
                       )
                     ],
@@ -291,6 +295,38 @@ class _LaporanMutasiState extends State<LaporanMutasi> {
                 ),
               ),
             ],
+          ),
+          Padding(
+            padding: EdgeInsets.all(8.0),
+            child: InkWell(
+              onTap: () {
+                loadData();
+              },
+              child: Container(
+                  width: MediaQuery.of(context).size.width,
+                  padding: EdgeInsets.symmetric(vertical: 15),
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.all(Radius.circular(5)),
+                      boxShadow: <BoxShadow>[
+                        BoxShadow(
+                            color: Colors.grey.shade200,
+                            offset: Offset(2, 4),
+                            blurRadius: 5,
+                            spreadRadius: 2)
+                      ],
+                      gradient: LinearGradient(
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
+                          colors: [Color(0xfffbb448), Color(0xfff7892b)])),
+                  child: HelperWidget().myTextStyle(
+                      context,
+                      "CARI",
+                      TextAlign.center,
+                      20.0,
+                      FontWeight.bold,
+                      Colors.white)),
+            ),
           ),
           Expanded(
               child: RefreshIndicator(

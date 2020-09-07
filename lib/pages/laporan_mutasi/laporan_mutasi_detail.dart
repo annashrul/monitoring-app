@@ -28,7 +28,7 @@ class _LaporanMutasiDetailState extends State<LaporanMutasiDetail> {
           icon: Icon(Icons.arrow_back, color: Colors.black),
         ),
         title: Text('Detail Laporan Mutasi',
-            style: TextStyle(color: Colors.black, fontWeight: FontWeight.w700)),
+            style: TextStyle(color: Colors.black, fontWeight: FontWeight.w700,fontFamily: 'Rubik')),
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -78,7 +78,7 @@ class _LaporanMutasiDetailState extends State<LaporanMutasiDetail> {
                         child: Material(
                           elevation: 14.0,
                           borderRadius: BorderRadius.circular(12.0),
-                          shadowColor: Color(0x802196F3),
+                          shadowColor: Colors.transparent,
                           color: Colors.white,
                           child: Padding(
                             padding: EdgeInsets.all(24.0),
@@ -93,7 +93,7 @@ class _LaporanMutasiDetailState extends State<LaporanMutasiDetail> {
                                         margin: EdgeInsets.only(right: 20.0),
                                         child: Image.network(
                                           values[i].gambar,
-                                          width: 90.0,
+                                          width: 70.0,
                                         )),
                                     Column(
                                       mainAxisAlignment:
@@ -108,7 +108,7 @@ class _LaporanMutasiDetailState extends State<LaporanMutasiDetail> {
                                               style: TextStyle(
                                                   color: Colors.blueAccent,
                                                   fontWeight: FontWeight.w700,
-                                                  fontSize: 13.0)),
+                                                  fontSize: 13.0,fontFamily: 'Rubik')),
                                         ),
                                         Container(
                                           margin: EdgeInsets.all(2.0),
@@ -116,7 +116,7 @@ class _LaporanMutasiDetailState extends State<LaporanMutasiDetail> {
                                               style: TextStyle(
                                                   color: Colors.blueAccent,
                                                   fontWeight: FontWeight.w700,
-                                                  fontSize: 13.0)),
+                                                  fontSize: 13.0,fontFamily: 'Rubik')),
                                         ),
                                         Container(
                                           margin: EdgeInsets.all(2.0),
@@ -124,7 +124,7 @@ class _LaporanMutasiDetailState extends State<LaporanMutasiDetail> {
                                               style: TextStyle(
                                                   color: Colors.blueAccent,
                                                   fontWeight: FontWeight.w700,
-                                                  fontSize: 16.0)),
+                                                  fontSize: 16.0,fontFamily: 'Rubik')),
                                         ),
                                         Row(
                                           children: [
@@ -142,7 +142,7 @@ class _LaporanMutasiDetailState extends State<LaporanMutasiDetail> {
                                                           color: Colors.black,
                                                           fontWeight:
                                                               FontWeight.w700,
-                                                          fontSize: 13.0)),
+                                                          fontSize: 13.0,fontFamily: 'Rubik')),
                                                 ),
                                                 Container(
                                                   margin: EdgeInsets.all(2.0),
@@ -152,7 +152,7 @@ class _LaporanMutasiDetailState extends State<LaporanMutasiDetail> {
                                                           color: Colors.black,
                                                           fontWeight:
                                                               FontWeight.w700,
-                                                          fontSize: 13.0)),
+                                                          fontSize: 13.0,fontFamily: 'Rubik')),
                                                 ),
                                                 Container(
                                                   margin: EdgeInsets.all(2.0),
@@ -162,7 +162,7 @@ class _LaporanMutasiDetailState extends State<LaporanMutasiDetail> {
                                                           color: Colors.black,
                                                           fontWeight:
                                                               FontWeight.w700,
-                                                          fontSize: 13.0)),
+                                                          fontSize: 13.0,fontFamily: 'Rubik')),
                                                 ),
                                               ],
                                             ),
