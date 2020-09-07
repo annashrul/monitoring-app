@@ -31,6 +31,7 @@ class _MainPageState extends State<MainPage>
   String transaksi="0";
   String netSales="0";
   String avg="0";
+  String nama='Netindo';
   var result = MonitoringProvider().getDashboard();
 
   @override
@@ -57,6 +58,10 @@ class _MainPageState extends State<MainPage>
       setState(() {});
     });
 
+    UserRepository().isName().then((val){
+      nama =val;
+      setState(() {});
+    });
   }
 
   @override
@@ -71,7 +76,7 @@ class _MainPageState extends State<MainPage>
             automaticallyImplyLeading: false, // Used for removing back buttoon. 
             elevation: 2.0,
             backgroundColor: Colors.white,
-            title: Text('Monitoring [Nama Toko]', style: TextStyle(fontFamily:'Rubik',color: Colors.black, fontWeight: FontWeight.w600, fontSize: 23.0)),
+            title: Text('Monitoring $nama', style: TextStyle(fontFamily:'Rubik',color: Colors.black, fontWeight: FontWeight.w600, fontSize: 23.0)),
             actions: <Widget>
             [
               PopupMenuButton<String>(

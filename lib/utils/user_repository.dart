@@ -36,11 +36,14 @@ class UserRepository {
   }
 
   Future<String> isServerAddress() async {
-    /// read from keystore/keychain
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String serverAddress = prefs.getString('serverAddress');
     return serverAddress;
-
+  }
+  Future<String> isName() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String nama = prefs.getString('nama');
+    return nama;
   }
   Future<bool> check() async {
     var connectivityResult = await (Connectivity().checkConnectivity());

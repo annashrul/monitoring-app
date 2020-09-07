@@ -3,9 +3,11 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:monitoring_apps/model/laporan_stock/laporanStockUtamaModel.dart';
+import 'package:monitoring_apps/model/lokasi.dart';
 import 'package:monitoring_apps/pages/helper/loadMoreQ.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_cupertino_date_picker/flutter_cupertino_date_picker.dart';
+import 'package:monitoring_apps/provider/lokasi_provider.dart';
 import 'package:monitoring_apps/utils/user_repository.dart';
 
 
@@ -27,16 +29,47 @@ class _LaporanStockUtamaState extends State<LaporanStockUtama> {
     "password": "\$2b\$08\$hLMU6rEvNILCMaQbthARK.iCmDRO7jNbUB8CcvyRStqsHD4UQxjDO",
     "Authorization": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxIiwiaWF0IjoxNTk3MTM0NzM3LCJleHAiOjE1OTk3MjY3Mzd9.Dy6OCNL9BhUgUTPcQMlEXTbw5Dyv3UnG_Kyvs3WHicE",
   };
+  String _format = 'yyyy-MM-dd';
+  TextEditingController _tgl_pertama = TextEditingController();
+  TextEditingController _tgl_kedua = TextEditingController();
+  DateTime _dateTime;
   String datefrom='2020-01-01';
   String dateto='2020-09-04';
+  String _valType ='Pilih Lokasi';  //Ini untuk menyimpan value data friend
+  List _type = [{"kode":"Pilih Lokasi","nama":"Pilih Lokasi"}];
+  Future getData() async {
+    await LokasiProvider().getLokasi().then((value){
+      if(value.result.data.length > 0){
+        for(var x=0;x<value.result.data.length;x++){
+          _type.add({
+            "kode":value.result.data[x].kode,
+            "nama":value.result.data[x].nama,
+          });
+        }
+        _valType = _type[1].kode;
+      }
+    });
+    loadData();
+  }
   Future<void> loadData() async{
-    final url = await userRepository.isServerAddress();
+    final server = await userRepository.isServerAddress();
+    String url = "$server/report/stock?page=1?page=1&perpage=$perpage";
+    if(_valType!='Pilih Lokasi'){
+      url += '&lokasi=$_valType';
+    }
+    if(_tgl_pertama.text!='yyyy-MM-dd'){
+      url += '&datefrom=${_tgl_pertama.text}';
+    }
+    if(_tgl_kedua.text!='yyyy-MM-dd'){
+      url+='&dateto=${_tgl_kedua.text}';
+    }
+    print("URL LAPORAN STOCK $url");
     try{
       setState(() {
         isLoading = true;
         isConnected=false;
       });
-      final jsonString = await http.get(url+"report/stock?page=1?page=1&datefrom=$datefrom&dateto=$dateto&perpage=$perpage", headers: headers).timeout(Duration(seconds: 20));
+      final jsonString = await http.get(url, headers: headers).timeout(Duration(seconds: 20));
       print(jsonString);
       if (jsonString.statusCode == 200) {
         final jsonResponse = json.decode(jsonString.body);
@@ -68,25 +101,6 @@ class _LaporanStockUtamaState extends State<LaporanStockUtama> {
   }
   DateTimePickerLocale _locale = DateTimePickerLocale.id;
   List<DateTimePickerLocale> _locales = DateTimePickerLocale.values;
-  String _format = 'yyyy-MM-dd';
-  TextEditingController _tgl_pertama = TextEditingController();
-  TextEditingController _tgl_kedua = TextEditingController();
-  DateTime _dateTime;
-  String _valType ='LK/0001';
-  List _type = ["LK/0001","LK/0002"];
-  String _radioValue2 = 'whatsapp';
-  void _handleRadioValueChange2(String value) {
-    _radioValue2 = value;
-    switch (_radioValue2) {
-      case 'whatsapp':
-        setState(() {});
-        break;
-      case 'sms':
-        setState(() {});
-        break;
-    }
-
-  }
 
   /// Display date picker.
   void _showDatePicker(var param) {
@@ -115,18 +129,23 @@ class _LaporanStockUtamaState extends State<LaporanStockUtama> {
           _dateTime = dateTime;
           if(param=='1'){
             _tgl_pertama.text = '${_dateTime.year}-${_dateTime.month.toString().padLeft(2, '0')}-${_dateTime.day.toString().padLeft(2, '0')}';
+            loadData();
           }else{
             _tgl_kedua.text = '${_dateTime.year}-${_dateTime.month.toString().padLeft(2, '0')}-${_dateTime.day.toString().padLeft(2, '0')}';
+            loadData();
           }
+
         });
       },
     );
   }
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     loadData();
+    getData();
     _tgl_pertama.text = _format;
     _tgl_kedua.text = _format;
     _dateTime = DateTime.parse(INIT_DATETIME);
@@ -221,19 +240,22 @@ class _LaporanStockUtamaState extends State<LaporanStockUtama> {
                       DropdownButton(
                         isDense: true,
                         isExpanded: true,
-
                         hint: Text("Pilih",style: TextStyle(fontFamily: 'Rubik'),),
                         value: _valType,
                         items: _type.map((value) {
+                          print(value['kode']);
                           return DropdownMenuItem(
-                            child: Text(value,style: TextStyle(fontFamily: 'Rubik',fontWeight: FontWeight.bold)),
-                            value: value,
+                            child: Text(value['nama'],style: TextStyle(fontFamily: 'Rubik',fontWeight: FontWeight.bold)),
+                            value: value['kode'],
                           );
                         }).toList(),
                         onChanged: (value) {
                           setState(() {
                             _valType = value;
                           });
+                          if(_valType!='Pilih Lokasi'){
+                            loadData();
+                          }
                         },
                       )
 
@@ -462,6 +484,9 @@ class _LaporanStockUtamaState extends State<LaporanStockUtama> {
       ),
     );
   }
+
+
+
 
 }
 
