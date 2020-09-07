@@ -26,6 +26,7 @@ class _MainPageState extends State<MainPage> {
   List<List<double>> charts = [
     [0.0, 0.1000]
   ];
+  final GlobalKey<RefreshIndicatorState> _refresh = GlobalKey<RefreshIndicatorState>();
   bool isLoading=false;
   static final List<String> chartDropdownItems = ['Semua Periode', 'Bulan ini'];
   String actualDropdown = chartDropdownItems[0];
@@ -67,7 +68,6 @@ class _MainPageState extends State<MainPage> {
     var date = new DateTime.now().toString();
     var dateParse = DateTime.parse(date);
     var formattedDate = "${dateParse.year}-${dateParse.month.toString().padLeft(2, '0')}-${dateParse.day.toString().padLeft(2, '0')}";
-    print("TANGGAL $formattedDate");
     String dateto=formattedDate,datefrom=formattedDate,lokasi='';
     if(_tgl_pertama.text==''){
       _tgl_pertama.text = formattedDate;
@@ -158,465 +158,471 @@ class _MainPageState extends State<MainPage> {
                 ),
               ],
             ),
-            body: isLoading?Container(
-              child: Center(
-                child: CircularProgressIndicator(strokeWidth: 5.0, valueColor: new AlwaysStoppedAnimation<Color>(Colors.black)),
-              ),
-            ):StaggeredGridView.count(
-              crossAxisCount: 2,
-              crossAxisSpacing: 12.0,
-              mainAxisSpacing: 12.0,
-              padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    "Dashboard",
-                    style: Theme.of(context).textTheme.headline4,
+            body: isLoading
+              ? Container(
+            child: Center(
+              child: CircularProgressIndicator(strokeWidth: 5.0, valueColor: new AlwaysStoppedAnimation<Color>(Colors.black)),
+            ),
+          )
+              : RefreshIndicator(
+              child: StaggeredGridView.count(
+                crossAxisCount: 2,
+                crossAxisSpacing: 12.0,
+                mainAxisSpacing: 12.0,
+                padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      "Dashboard",
+                      style: Theme.of(context).textTheme.headline4,
+                    ),
                   ),
-                ),
-                Row(
-                  children: <Widget>[
-                    new Flexible(
-                      child: Padding(
-                        padding: EdgeInsets.only(left: 8.0, top: 10.0),
-                        child: GestureDetector(
+                  Row(
+                    children: <Widget>[
+                      new Flexible(
+                        child: Padding(
+                          padding: EdgeInsets.only(left: 8.0, top: 10.0),
+                          child: GestureDetector(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                TextField(
+                                  readOnly: true,
+                                  controller: _tgl_pertama,
+                                  keyboardType: TextInputType.url,
+                                  decoration: InputDecoration(
+                                    labelText: 'Dari',
+                                    hintText: 'yyyy-MM-dd',
+                                    hintStyle: TextStyle(
+                                        color: Colors.black26,
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: 'Rubik'),
+                                  ),
+                                  onTap: () {
+                                    _showDatePicker('1');
+                                  },
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _tgl_pertama.text =
+                                      '${_dateTime.year}-${_dateTime.month.toString().padLeft(2, '0')}-${_dateTime.day.toString().padLeft(2, '0')}';
+                                    });
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      new Flexible(
+                        child: Padding(
+                          padding: EdgeInsets.only(left: 8.0, top: 10.0),
+                          child: GestureDetector(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                TextField(
+                                  readOnly: true,
+                                  controller: _tgl_kedua,
+                                  keyboardType: TextInputType.url,
+                                  decoration: InputDecoration(
+                                    labelText: 'Sampai',
+                                    hintText: 'yyyy-MM-dd',
+                                    hintStyle: TextStyle(
+                                        color: Colors.black26,
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: 'Rubik'),
+                                  ),
+                                  onTap: () {
+                                    _showDatePicker('2');
+                                  },
+                                  onChanged: (value) {},
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      new Flexible(
+                        child: Padding(
+                          padding:
+                          EdgeInsets.only(right: 8.0, left: 8.0, top: 20.0),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
-                              TextField(
-                                readOnly: true,
-                                controller: _tgl_pertama,
-                                keyboardType: TextInputType.url,
-                                decoration: InputDecoration(
-                                  labelText: 'Dari',
-                                  hintText: 'yyyy-MM-dd',
-                                  hintStyle: TextStyle(
+                              Text('Lokasi',
+                                  style: TextStyle(
+                                      fontSize: 12.0,
                                       color: Colors.black26,
                                       fontWeight: FontWeight.bold,
-                                      fontFamily: 'Rubik'),
+                                      fontFamily: 'Rubik')),
+                              SizedBox(height: 5.0),
+                              DropdownButton(
+                                isDense: true,
+                                isExpanded: true,
+                                hint: Text(
+                                  "Pilih",
+                                  style: TextStyle(fontFamily: 'Rubik'),
                                 ),
-                                onTap: () {
-                                  _showDatePicker('1');
-                                },
+                                value: _valType,
+                                items: _type.map((value) {
+                                  return DropdownMenuItem<String>(
+                                    child: Text(value['nama'], style: TextStyle(fontFamily: 'Rubik', fontWeight: FontWeight.bold)),
+                                    value: "${value['kode']}",
+                                  );
+                                }).toList(),
                                 onChanged: (value) {
                                   setState(() {
-                                    _tgl_pertama.text =
-                                        '${_dateTime.year}-${_dateTime.month.toString().padLeft(2, '0')}-${_dateTime.day.toString().padLeft(2, '0')}';
+                                    _valType = value;
                                   });
+                                  if (_valType != 'Pilih Lokasi') {
+                                    loadData();
+                                  }
                                 },
-                              ),
+                              )
                             ],
                           ),
                         ),
                       ),
+                    ],
+                  ),
+                  //GrossSales
+                  _buildTile(
+                    Padding(
+                      padding: const EdgeInsets.all(24.0),
+                      child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: <Widget>[
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Text('Gross Sales', style: TextStyle(color: Colors.blueAccent)),
+                                Text('$penjualan',
+                                    style: TextStyle(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 34.0,fontFamily: 'Rubik'))
+                              ],
+                            ),
+                            Material(
+                                color: Colors.blue,
+                                borderRadius: BorderRadius.circular(24.0),
+                                child: Center(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(16.0),
+                                      child: Icon(Icons.show_chart,
+                                          color: Colors.white, size: 30.0),
+                                    )))
+                          ]),
                     ),
-                    new Flexible(
-                      child: Padding(
-                        padding: EdgeInsets.only(left: 8.0, top: 10.0),
-                        child: GestureDetector(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              TextField(
-                                readOnly: true,
-                                controller: _tgl_kedua,
-                                keyboardType: TextInputType.url,
-                                decoration: InputDecoration(
-                                  labelText: 'Sampai',
-                                  hintText: 'yyyy-MM-dd',
-                                  hintStyle: TextStyle(
-                                      color: Colors.black26,
-                                      fontWeight: FontWeight.bold,
-                                      fontFamily: 'Rubik'),
-                                ),
-                                onTap: () {
-                                  _showDatePicker('2');
-                                },
-                                onChanged: (value) {},
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    new Flexible(
-                      child: Padding(
-                        padding:
-                            EdgeInsets.only(right: 8.0, left: 8.0, top: 20.0),
-                        child: Column(
+                  ),
+
+                  // TRX
+                  _buildTile(
+                    Padding(
+                      padding: const EdgeInsets.all(24.0),
+                      child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
-                            Text('Lokasi',
+                            Material(
+                                color: Colors.teal,
+                                shape: CircleBorder(),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Icon(Icons.shopping_cart,
+                                      color: Colors.white, size: 30.0),
+                                )),
+                            Padding(padding: EdgeInsets.only(bottom: 16.0)),
+                            Text('Transaction',
                                 style: TextStyle(
-                                    fontSize: 12.0,
-                                    color: Colors.black26,
-                                    fontWeight: FontWeight.bold,
-                                    fontFamily: 'Rubik')),
-                            SizedBox(height: 5.0),
-                            DropdownButton(
-                              isDense: true,
-                              isExpanded: true,
-                              hint: Text(
-                                "Pilih",
-                                style: TextStyle(fontFamily: 'Rubik'),
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 24.0,fontFamily: 'Rubik')),
+                            Text('$transaksi',
+                                style: TextStyle(
+                                    color: Colors.black45, fontSize: 18.0,fontFamily: 'Rubik')),
+                          ]),
+                    ),
+                  ),
+
+                  // NET SALES
+                  _buildTile(
+                    Padding(
+                      padding: const EdgeInsets.all(24.0),
+                      child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Material(
+                                color: Colors.amber,
+                                shape: CircleBorder(),
+                                child: Padding(
+                                  padding: EdgeInsets.all(16.0),
+                                  child: Icon(Icons.multiline_chart,
+                                      color: Colors.white, size: 30.0),
+                                )),
+                            Padding(padding: EdgeInsets.only(bottom: 16.0)),
+                            Text('Net Sales',
+                                style: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 24.0,fontFamily: 'Rubik')),
+                            Text('$netSales',
+                                style: TextStyle(
+                                    color: Colors.black45, fontSize: 18.0,fontFamily: 'Rubik')),
+                          ]),
+                    ),
+                  ),
+
+                  //HOURYLY
+                  _buildTile(
+                    Padding(
+                        padding: const EdgeInsets.all(24.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    Text('Hourly Gross Sales Amount',
+                                        style: TextStyle(
+                                            fontFamily: 'Rubik',
+                                            color: Colors.green,
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 18.0)),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            Padding(padding: EdgeInsets.only(bottom: 4.0)),
+                            Expanded(
+                              child: Sparkline(
+                                data: charts[actualChart],
+                                lineWidth: 5.0,
+                                lineColor: Colors.greenAccent,
                               ),
-                              value: _valType,
-                              items: _type.map((value) {
-                                return DropdownMenuItem<String>(
-                                  child: Text(value['nama'], style: TextStyle(fontFamily: 'Rubik', fontWeight: FontWeight.bold)),
-                                  value: "${value['kode']}",
-                                );
-                              }).toList(),
-                              onChanged: (value) {
-                                setState(() {
-                                  _valType = value;
-                                });
-                                if (_valType != 'Pilih Lokasi') {
-                                  loadData();
-                                }
-                              },
                             )
                           ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                //GrossSales
-                _buildTile(
-                  Padding(
-                    padding: const EdgeInsets.all(24.0),
-                    child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: <Widget>[
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Text('Gross Sales', style: TextStyle(color: Colors.blueAccent)),
-                              Text('$penjualan',
-                                  style: TextStyle(
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 34.0))
-                            ],
-                          ),
-                          Material(
-                              color: Colors.blue,
-                              borderRadius: BorderRadius.circular(24.0),
-                              child: Center(
-                                  child: Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: Icon(Icons.show_chart,
-                                    color: Colors.white, size: 30.0),
-                              )))
-                        ]),
+                        )),
                   ),
-                ),
 
-                // TRX
-                _buildTile(
-                  Padding(
-                    padding: const EdgeInsets.all(24.0),
-                    child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Material(
-                              color: Colors.teal,
-                              shape: CircleBorder(),
-                              child: Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: Icon(Icons.shopping_cart,
-                                    color: Colors.white, size: 30.0),
-                              )),
-                          Padding(padding: EdgeInsets.only(bottom: 16.0)),
-                          Text('Transaction',
-                              style: TextStyle(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 24.0)),
-                          Text('$transaksi',
-                              style: TextStyle(
-                                  color: Colors.black45, fontSize: 18.0)),
-                        ]),
-                  ),
-                ),
-
-                // NET SALES
-                _buildTile(
-                  Padding(
-                    padding: const EdgeInsets.all(24.0),
-                    child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Material(
-                              color: Colors.amber,
-                              shape: CircleBorder(),
-                              child: Padding(
-                                padding: EdgeInsets.all(16.0),
-                                child: Icon(Icons.multiline_chart,
-                                    color: Colors.white, size: 30.0),
-                              )),
-                          Padding(padding: EdgeInsets.only(bottom: 16.0)),
-                          Text('Net Sales',
-                              style: TextStyle(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 24.0)),
-                          Text('$netSales',
-                              style: TextStyle(
-                                  color: Colors.black45, fontSize: 18.0)),
-                        ]),
-                  ),
-                ),
-
-                //HOURYLY
-                _buildTile(
-                  Padding(
+                  //AVGTRX
+                  _buildTile(
+                    Padding(
                       padding: const EdgeInsets.all(24.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: <Widget>[
-                                  Text('Hourly Gross Sales Amount',
-                                      style: TextStyle(
-                                          fontFamily: 'Rubik',
-                                          color: Colors.green,
-                                          fontWeight: FontWeight.w700,
-                                          fontSize: 18.0)),
-                                ],
-                              ),
-                            ],
-                          ),
-                          Padding(padding: EdgeInsets.only(bottom: 4.0)),
-                          Expanded(
-                            child: Sparkline(
-                              data: charts[actualChart],
-                              lineWidth: 5.0,
-                              lineColor: Colors.greenAccent,
+                      child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: <Widget>[
+                            Material(
+                                color: Colors.blue,
+                                borderRadius: BorderRadius.circular(24.0),
+                                child: Center(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(16.0),
+                                      child: Icon(Icons.pie_chart,
+                                          color: Colors.white, size: 30.0),
+                                    ))),
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Text('Average Per-Transaction',
+                                    style: TextStyle(color: Colors.blueAccent,fontFamily: 'Rubik')),
+                                Text('$avg',
+                                    style: TextStyle(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 34.0,fontFamily: 'Rubik'))
+                              ],
                             ),
-                          )
-                        ],
-                      )),
-                ),
-
-                //AVGTRX
-                _buildTile(
-                  Padding(
-                    padding: const EdgeInsets.all(24.0),
-                    child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: <Widget>[
-                          Material(
-                              color: Colors.blue,
-                              borderRadius: BorderRadius.circular(24.0),
-                              child: Center(
-                                  child: Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: Icon(Icons.pie_chart,
-                                    color: Colors.white, size: 30.0),
-                              ))),
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Text('Average Per-Transaction',
-                                  style: TextStyle(color: Colors.blueAccent)),
-                              Text('$avg',
-                                  style: TextStyle(
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 34.0))
-                            ],
-                          ),
-                        ]),
+                          ]),
+                    ),
                   ),
-                ),
 
-                //Monthly Sales Amount
-                _buildTile(
+                  //Monthly Sales Amount
+                  _buildTile(
+                    Padding(
+                        padding: const EdgeInsets.all(24.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    Text('Monthly Sales Amount',
+                                        style: TextStyle(
+                                            fontFamily: 'Rubik',
+                                            color: Colors.green,
+                                            fontSize: 18.0)),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            Padding(padding: EdgeInsets.only(bottom: 4.0)),
+                            Expanded(
+                                child: new GroupedBarChart.withSampleData(
+                                    monthlyData)),
+                            Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: <Widget>[
+                                  Container(width: 10.0),
+                                  Container(
+                                    margin: EdgeInsets.only(top: 3.5),
+                                    color: Colors.blueAccent,
+                                    width: 10.0,
+                                    height: 5.0,
+                                  ),
+                                  Container(width: 5.0),
+                                  new Text("Bulan lalu",style: TextStyle(fontFamily: 'Rubik'),),
+                                ]),
+                            Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: <Widget>[
+                                  Container(width: 10.0),
+                                  Container(
+                                    margin: EdgeInsets.only(top: 3.5),
+                                    color: Colors.blue[200],
+                                    width: 10.0,
+                                    height: 5.0,
+                                  ),
+                                  Container(width: 5.0),
+                                  new Text("Bulan ini",style: TextStyle(fontFamily: 'Rubik'),),
+                                ])
+                          ],
+                        )),
+                  ),
+
                   Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      "Laporan",
+                      style: Theme.of(context).textTheme.headline4,
+                    ),
+                  ),
+                  //laporan penjualan
+                  _buildTile(
+                    Padding(
                       padding: const EdgeInsets.all(24.0),
                       child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: <Widget>[
-                                  Text('Monthly Sales Amount',
-                                      style: TextStyle(
-                                          fontFamily: 'Rubik',
-                                          color: Colors.green,
-                                          fontSize: 18.0)),
-                                ],
-                              ),
-                            ],
-                          ),
-                          Padding(padding: EdgeInsets.only(bottom: 4.0)),
-                          Expanded(
-                              child: new GroupedBarChart.withSampleData(
-                                  monthlyData)),
-                          Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisSize: MainAxisSize.min,
-                              children: <Widget>[
-                                Container(width: 10.0),
-                                Container(
-                                  margin: EdgeInsets.only(top: 3.5),
-                                  color: Colors.blueAccent,
-                                  width: 10.0,
-                                  height: 5.0,
-                                ),
-                                Container(width: 5.0),
-                                new Text("Bulan lalu"),
-                              ]),
-                          Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisSize: MainAxisSize.min,
-                              children: <Widget>[
-                                Container(width: 10.0),
-                                Container(
-                                  margin: EdgeInsets.only(top: 3.5),
-                                  color: Colors.blue[200],
-                                  width: 10.0,
-                                  height: 5.0,
-                                ),
-                                Container(width: 5.0),
-                                new Text("Bulan ini"),
-                              ])
-                        ],
-                      )),
-                ),
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: <Widget>[
+                            Material(
+                                color: Colors.deepPurple,
+                                shape: CircleBorder(),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Icon(Icons.assignment,
+                                      color: Colors.white, size: 30.0),
+                                )),
+                            Text('Laporan Penjualan',
+                                style: TextStyle(
+                                    fontFamily: 'Rubik',
+                                    color: Colors.deepPurple,
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 20.0))
+                          ]),
+                    ),
+                    onTap: () => Navigator.of(context)
+                        .push(MaterialPageRoute(builder: (_) => LaporanPage())),
+                  ),
+                  //Laporan Stock
+                  _buildTile(
+                    Padding(
+                      padding: const EdgeInsets.all(29.5),
+                      child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: <Widget>[
+                            Material(
+                                color: Colors.teal,
+                                shape: CircleBorder(),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Icon(Icons.storage,
+                                      color: Colors.white, size: 30.0),
+                                )),
+                            Text('Laporan Stock',
+                                style: TextStyle(
+                                    fontFamily: 'Rubik',
+                                    color: Colors.teal,
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 20.0))
+                          ]),
+                    ),
+                    onTap: () => Navigator.of(context).push(
+                        CupertinoPageRoute(builder: (_) => LaporanStockUtama())),
+                  ),
 
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    "Laporan",
-                    style: Theme.of(context).textTheme.headline4,
-                  ),
-                ),
-                //laporan penjualan
-                _buildTile(
-                  Padding(
-                    padding: const EdgeInsets.all(24.0),
-                    child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: <Widget>[
-                          Material(
-                              color: Colors.deepPurple,
-                              shape: CircleBorder(),
-                              child: Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: Icon(Icons.assignment,
-                                    color: Colors.white, size: 30.0),
-                              )),
-                          Text('Laporan Penjualan',
-                              style: TextStyle(
-                                  fontFamily: 'Rubik',
-                                  color: Colors.deepPurple,
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 20.0))
-                        ]),
-                  ),
-                  onTap: () => Navigator.of(context)
-                      .push(MaterialPageRoute(builder: (_) => LaporanPage())),
-                ),
-                //Laporan Stock
-                _buildTile(
-                  Padding(
-                    padding: const EdgeInsets.all(29.5),
-                    child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: <Widget>[
-                          Material(
-                              color: Colors.teal,
-                              shape: CircleBorder(),
-                              child: Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: Icon(Icons.storage,
-                                    color: Colors.white, size: 30.0),
-                              )),
-                          Text('Laporan Stock',
-                              style: TextStyle(
-                                  fontFamily: 'Rubik',
-                                  color: Colors.teal,
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 20.0))
-                        ]),
-                  ),
-                  onTap: () => Navigator.of(context).push(
-                      CupertinoPageRoute(builder: (_) => LaporanStockUtama())),
-                ),
-
-                _buildTile(
-                  Padding(
-                    padding: const EdgeInsets.all(24.0),
-                    child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: <Widget>[
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Text('Laporan Mutasi',
-                                  style: TextStyle(
-                                      fontFamily: 'Rubik',
-                                      color: Colors.redAccent,
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 20.0))
-                            ],
-                          ),
-                          Material(
-                              color: Colors.red,
-                              borderRadius: BorderRadius.circular(24.0),
-                              child: Center(
-                                  child: Padding(
-                                padding: EdgeInsets.all(16.0),
-                                child: Icon(Icons.list,
-                                    color: Colors.white, size: 30.0),
-                              )))
-                        ]),
-                  ),
-                  onTap: () => Navigator.of(context).push(
-                      CupertinoPageRoute(builder: (_) => LaporanMutasi())),
-                )
-              ],
-              staggeredTiles: [
-                StaggeredTile.extent(2, 50.0),
-                StaggeredTile.extent(2, 70.0),
-                StaggeredTile.extent(2, 110.0),
-                StaggeredTile.extent(1, 180.0),
-                StaggeredTile.extent(1, 180.0),
-                StaggeredTile.extent(2, 220.0),
-                StaggeredTile.extent(2, 110.0),
-                StaggeredTile.extent(2, 260.0),
-                StaggeredTile.extent(2, 50.0),
-                StaggeredTile.extent(1, 180.0),
-                StaggeredTile.extent(1, 180.0),
-                StaggeredTile.extent(2, 110.0),
-              ],
+                  _buildTile(
+                    Padding(
+                      padding: const EdgeInsets.all(24.0),
+                      child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: <Widget>[
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Text('Laporan Mutasi',
+                                    style: TextStyle(
+                                        fontFamily: 'Rubik',
+                                        color: Colors.redAccent,
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 20.0))
+                              ],
+                            ),
+                            Material(
+                                color: Colors.red,
+                                borderRadius: BorderRadius.circular(24.0),
+                                child: Center(
+                                    child: Padding(
+                                      padding: EdgeInsets.all(16.0),
+                                      child: Icon(Icons.list,
+                                          color: Colors.white, size: 30.0),
+                                    )))
+                          ]),
+                    ),
+                    onTap: () => Navigator.of(context).push(
+                        CupertinoPageRoute(builder: (_) => LaporanMutasi())),
+                  )
+                ],
+                staggeredTiles: [
+                  StaggeredTile.extent(2, 50.0),
+                  StaggeredTile.extent(2, 70.0),
+                  StaggeredTile.extent(2, 110.0),
+                  StaggeredTile.extent(1, 180.0),
+                  StaggeredTile.extent(1, 180.0),
+                  StaggeredTile.extent(2, 220.0),
+                  StaggeredTile.extent(2, 110.0),
+                  StaggeredTile.extent(2, 260.0),
+                  StaggeredTile.extent(2, 50.0),
+                  StaggeredTile.extent(1, 180.0),
+                  StaggeredTile.extent(1, 180.0),
+                  StaggeredTile.extent(2, 110.0),
+                ],
+              ),
+              onRefresh: loadData,
+              key: _refresh,
             )
         )
     );

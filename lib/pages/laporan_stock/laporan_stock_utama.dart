@@ -28,13 +28,13 @@ class _LaporanStockUtamaState extends State<LaporanStockUtama> {
   final userRepository = UserRepository();
 
   Map<String, String> get headers => {
-        "Content-Type": "application/json",
-        "username": "netindo",
-        "password":
-            "\$2b\$08\$hLMU6rEvNILCMaQbthARK.iCmDRO7jNbUB8CcvyRStqsHD4UQxjDO",
-        "Authorization":
-            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxIiwiaWF0IjoxNTk3MTM0NzM3LCJleHAiOjE1OTk3MjY3Mzd9.Dy6OCNL9BhUgUTPcQMlEXTbw5Dyv3UnG_Kyvs3WHicE",
-      };
+    "Content-Type": "application/json",
+    "username": "netindo",
+    "password":
+        "\$2b\$08\$hLMU6rEvNILCMaQbthARK.iCmDRO7jNbUB8CcvyRStqsHD4UQxjDO",
+    "Authorization":
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxIiwiaWF0IjoxNTk3MTM0NzM3LCJleHAiOjE1OTk3MjY3Mzd9.Dy6OCNL9BhUgUTPcQMlEXTbw5Dyv3UnG_Kyvs3WHicE",
+  };
   String _format = 'yyyy-MM-dd';
   TextEditingController _tgl_pertama = TextEditingController();
   TextEditingController _tgl_kedua = TextEditingController();
@@ -68,13 +68,23 @@ class _LaporanStockUtamaState extends State<LaporanStockUtama> {
   Future<void> loadData() async {
     final server = await userRepository.isServerAddress();
     String url = "$server/report/stock?page=1&perpage=$perpage";
+    var date = new DateTime.now().toString();
+    var dateParse = DateTime.parse(date);
+    var formattedDate = "${dateParse.year}-${dateParse.month.toString().padLeft(2, '0')}-${dateParse.day.toString().padLeft(2, '0')}";
+    String dateto=formattedDate,datefrom=formattedDate,lokasi='';
     if (_valType != 'Pilih Lokasi') {
       url += '&lokasi=$_valType';
     }
-    if (_tgl_pertama.text != 'yyyy-MM-dd') {
+    if (_tgl_pertama.text == 'yyyy-MM-dd') {
+      _tgl_pertama.text = formattedDate;
+      url += '&datefrom=${_tgl_pertama.text}';
+    }else{
       url += '&datefrom=${_tgl_pertama.text}';
     }
-    if (_tgl_kedua.text != 'yyyy-MM-dd') {
+    if (_tgl_kedua.text == 'yyyy-MM-dd') {
+      _tgl_kedua.text = formattedDate;
+      url += '&dateto=${_tgl_kedua.text}';
+    }else{
       url += '&dateto=${_tgl_kedua.text}';
     }
     print('URL LAPORAN STOCK UTAMA $url');
@@ -86,8 +96,6 @@ class _LaporanStockUtamaState extends State<LaporanStockUtama> {
       final jsonString =
           await http.get(url, headers: headers).timeout(Duration(seconds: 20));
       if (jsonString.statusCode == 200) {
-        String url = "$server/report/stock?page=1?page=1&perpage=$perpage";
-
         final jsonResponse = json.decode(jsonString.body);
         laporanStockUtamaModel =
             new LaporanStockUtamaModel.fromJson(jsonResponse);
@@ -303,33 +311,7 @@ class _LaporanStockUtamaState extends State<LaporanStockUtama> {
               child: RefreshIndicator(
             child: Padding(
               padding: const EdgeInsets.all(8.0),
-              child: isRetry == true
-                  ? Padding(
-                      padding: EdgeInsets.all(10.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Center(
-                            child: Text(
-                              "Mohon Maaf, Server Kami Sedang Dalam Perbaikan",
-                              style: TextStyle(
-                                  fontFamily: 'Rubik',
-                                  fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                          Center(
-                            child: Text(
-                              "Silahkan Coba Beberapa Saat Lagi",
-                              style: TextStyle(
-                                  fontFamily: 'Rubik',
-                                  fontWeight: FontWeight.bold),
-                            ),
-                          )
-                        ],
-                      ),
-                    )
-                  : isLoading
+              child: isLoading
                       ? Container(
                           child: Center(
                             child: CircularProgressIndicator(
