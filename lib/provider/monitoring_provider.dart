@@ -15,9 +15,10 @@ class MonitoringProvider {
             "\$2b\$08\$hLMU6rEvNILCMaQbthARK.iCmDRO7jNbUB8CcvyRStqsHD4UQxjDO",
         // "Authorization": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxIiwiaWF0IjoxNTk3MTM0NzM3LCJleHAiOjE1OTk3MjY3Mzd9.Dy6OCNL9BhUgUTPcQMlEXTbw5Dyv3UnG_Kyvs3WHicE",
       };
-  Future<Monitoring> getDashboard() async {
+  Future<Monitoring> getDashboard(var dateto, var datefrom, var lokasi) async {
     final url = await userRepository.isServerAddress();
-    final response = await client.get("$url/site/monitoring");
+    print("URL DASHBOARD ${"$url/site/monitoring?dateto=$dateto&datefrom=$datefrom&lokasi=$lokasi"}");
+    final response = await client.get("$url/site/monitoring?dateto=$dateto&datefrom=$datefrom&lokasi=$lokasi");
     if (response.statusCode == 200) {
       return monitoringFromJson(response.body);
     } else {

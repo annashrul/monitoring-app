@@ -11,6 +11,7 @@ import 'package:monitoring_apps/pages/laporan_mutasi/laporan_mutasi.dart';
 import 'package:monitoring_apps/pages/laporan_page.dart';
 import 'package:monitoring_apps/pages/laporan_stock/laporan_stock_utama.dart';
 import 'package:monitoring_apps/pages/login_page.dart';
+import 'package:monitoring_apps/provider/lokasi_provider.dart';
 import 'package:monitoring_apps/provider/monitoring_provider.dart';
 import 'package:monitoring_apps/utils/user_repository.dart' show UserRepository;
 import 'package:monitoring_apps/widget/GroupedBarChart.dart';
@@ -34,15 +35,61 @@ class _MainPageState extends State<MainPage> {
   String avg = "0";
   Monthly monthlyData;
   String nama = 'Netindo';
-  var result = MonitoringProvider().getDashboard();
   DateTimePickerLocale _locale = DateTimePickerLocale.id;
   List<DateTimePickerLocale> _locales = DateTimePickerLocale.values;
   String _format = 'yyyy-MM-dd';
   TextEditingController _tgl_pertama = TextEditingController();
   TextEditingController _tgl_kedua = TextEditingController();
   DateTime _dateTime;
-  String _valType = 'LK/0001';
-  List _type = ["Semua Lokasi", "LK/0001", "LK/0002"];
+  String _valType = 'Pilih Lokasi';
+  List _type = [
+    {"kode": "Pilih Lokasi", "nama": "Pilih Lokasi"}
+  ];
+  Future getData() async {
+    await LokasiProvider().getLokasi().then((value) {
+      if (value.result.data.length > 0) {
+        for (var x = 0; x < value.result.data.length; x++) {
+          _type.add({
+            "kode": value.result.data[x].kode,
+            "nama": value.result.data[x].nama,
+          });
+        }
+        setState(() {
+          _valType = _type[1]['kode'];
+        });
+      }
+    });
+    loadData();
+  }
+
+  Future<void> loadData() async{
+    DateTime _dateTime;
+    print("TANGGAL $_valType");
+    String datefrom='2020-01-01',dateto='2020-09-07',lokasi='';
+    if(_tgl_pertama.text==''){
+      _valType =
+      datefrom = _tgl_pertama.text;
+    }
+    if(_tgl_kedua.text!=''){
+      dateto = _tgl_kedua.text;
+    }
+    if(_valType!='Pilih Lokasi'){
+      lokasi = _valType;
+    }
+    await MonitoringProvider().getDashboard(datefrom,dateto,lokasi).then((value){
+      penjualan = value.result.penjualan;
+      transaksi = value.result.transaksi;
+      netSales = value.result.netSales;
+      avg = value.result.avg;
+      final hourly = jsonDecode(value.result.hourly);
+      charts = List<List<double>>.from(hourly.map((x) => List<double>.from(x.map((x) => x.toDouble()))));
+      if(value.result.monthly.labelLokasi!=null){
+        monthlyData = value.result.monthly;
+      }
+      // charts=hourly.cast<List<double>>();
+      setState(() {});
+    });
+  }
   @override
   void initState() {
     super.initState();
@@ -57,29 +104,8 @@ class _MainPageState extends State<MainPage> {
     OneSignal.shared.setNotificationOpenedHandler((notification) {
       // var notify = notification.notification.payload.additionalData;
     });
-
-    result.then((val) {
-      penjualan = val.result.penjualan;
-      transaksi = val.result.transaksi;
-      netSales = val.result.netSales;
-      avg = val.result.avg;
-      final hourly = jsonDecode(val.result.hourly);
-      charts = List<List<double>>.from(
-          hourly.map((x) => List<double>.from(x.map((x) => x.toDouble()))));
-
-      if(val.result.monthly.labelLokasi!=null){
-        monthlyData = val.result.monthly;
-        print("LABEL LOKASI TIDAK NULL");
-      }
-      else{
-        print("LABEL LOKASI NULL");
-      }
-
-
-      // charts=hourly.cast<List<double>>();
-      setState(() {});
-    });
-
+    loadData();
+    getData();
     UserRepository().isName().then((val) {
       nama = val;
       setState(() {});
@@ -221,18 +247,18 @@ class _MainPageState extends State<MainPage> {
                               ),
                               value: _valType,
                               items: _type.map((value) {
-                                return DropdownMenuItem(
-                                  child: Text(value,
-                                      style: TextStyle(
-                                          fontFamily: 'Rubik',
-                                          fontWeight: FontWeight.bold)),
-                                  value: value,
+                                return DropdownMenuItem<String>(
+                                  child: Text(value['nama'], style: TextStyle(fontFamily: 'Rubik', fontWeight: FontWeight.bold)),
+                                  value: "${value['kode']}",
                                 );
                               }).toList(),
                               onChanged: (value) {
                                 setState(() {
                                   _valType = value;
                                 });
+                                if (_valType != 'Pilih Lokasi') {
+                                  loadData();
+                                }
                               },
                             )
                           ],
@@ -494,7 +520,7 @@ class _MainPageState extends State<MainPage> {
                                   fontFamily: 'Rubik',
                                   color: Colors.deepPurple,
                                   fontWeight: FontWeight.w700,
-                                  fontSize: 24.0))
+                                  fontSize: 20.0))
                         ]),
                   ),
                   onTap: () => Navigator.of(context)
@@ -521,7 +547,7 @@ class _MainPageState extends State<MainPage> {
                                   fontFamily: 'Rubik',
                                   color: Colors.teal,
                                   fontWeight: FontWeight.w700,
-                                  fontSize: 23.0))
+                                  fontSize: 20.0))
                         ]),
                   ),
                   onTap: () => Navigator.of(context).push(
