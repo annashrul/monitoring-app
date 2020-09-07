@@ -26,6 +26,7 @@ class _MainPageState extends State<MainPage> {
   List<List<double>> charts = [
     [0.0, 0.1000]
   ];
+  bool isLoading=false;
   static final List<String> chartDropdownItems = ['Semua Periode', 'Bulan ini'];
   String actualDropdown = chartDropdownItems[0];
   int actualChart = 0;
@@ -63,32 +64,44 @@ class _MainPageState extends State<MainPage> {
   }
 
   Future<void> loadData() async{
-    DateTime _dateTime;
-    print("TANGGAL $_valType");
-    String datefrom='2020-01-01',dateto='2020-09-07',lokasi='';
+    var date = new DateTime.now().toString();
+    var dateParse = DateTime.parse(date);
+    var formattedDate = "${dateParse.year}-${dateParse.month.toString().padLeft(2, '0')}-${dateParse.day.toString().padLeft(2, '0')}";
+    print("TANGGAL $formattedDate");
+    String dateto=formattedDate,datefrom=formattedDate,lokasi='';
     if(_tgl_pertama.text==''){
-      _valType =
+      _tgl_pertama.text = formattedDate;
+      datefrom = formattedDate;
+    }else{
       datefrom = _tgl_pertama.text;
     }
-    if(_tgl_kedua.text!=''){
+    if(_tgl_kedua.text==''){
+      _tgl_kedua.text = formattedDate;
+      dateto = formattedDate;
+    }else{
       dateto = _tgl_kedua.text;
     }
     if(_valType!='Pilih Lokasi'){
       lokasi = _valType;
     }
-    await MonitoringProvider().getDashboard(datefrom,dateto,lokasi).then((value){
-      penjualan = value.result.penjualan;
-      transaksi = value.result.transaksi;
-      netSales = value.result.netSales;
-      avg = value.result.avg;
-      final hourly = jsonDecode(value.result.hourly);
-      charts = List<List<double>>.from(hourly.map((x) => List<double>.from(x.map((x) => x.toDouble()))));
-      if(value.result.monthly.labelLokasi!=null){
-        monthlyData = value.result.monthly;
-      }
-      // charts=hourly.cast<List<double>>();
-      setState(() {});
+    setState(() {
+      isLoading=true;
     });
+    await MonitoringProvider().getDashboard(datefrom,dateto,lokasi).then((value){
+      setState(() {
+        isLoading=false;
+        penjualan = value.result.penjualan;
+        transaksi = value.result.transaksi;
+        netSales = value.result.netSales;
+        avg = value.result.avg;
+        final hourly = jsonDecode(value.result.hourly);
+        charts = List<List<double>>.from(hourly.map((x) => List<double>.from(x.map((x) => x.toDouble()))));
+        if(value.result.monthly.labelLokasi!=null){
+          monthlyData = value.result.monthly;
+        }
+      });
+    });
+
   }
   @override
   void initState() {
@@ -99,8 +112,7 @@ class _MainPageState extends State<MainPage> {
       OSiOSSettings.autoPrompt: false,
       OSiOSSettings.promptBeforeOpeningPushUrl: true
     };
-    OneSignal.shared
-        .init("9a74b710-c5f3-441c-b3d5-de924945e5f9", iOSSettings: settings);
+    OneSignal.shared.init("9a74b710-c5f3-441c-b3d5-de924945e5f9", iOSSettings: settings);
     OneSignal.shared.setNotificationOpenedHandler((notification) {
       // var notify = notification.notification.payload.additionalData;
     });
@@ -146,7 +158,11 @@ class _MainPageState extends State<MainPage> {
                 ),
               ],
             ),
-            body: StaggeredGridView.count(
+            body: isLoading?Container(
+              child: Center(
+                child: CircularProgressIndicator(strokeWidth: 5.0, valueColor: new AlwaysStoppedAnimation<Color>(Colors.black)),
+              ),
+            ):StaggeredGridView.count(
               crossAxisCount: 2,
               crossAxisSpacing: 12.0,
               mainAxisSpacing: 12.0,
@@ -279,8 +295,7 @@ class _MainPageState extends State<MainPage> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
-                              Text('Gross Sales',
-                                  style: TextStyle(color: Colors.blueAccent)),
+                              Text('Gross Sales', style: TextStyle(color: Colors.blueAccent)),
                               Text('$penjualan',
                                   style: TextStyle(
                                       color: Colors.black,
@@ -602,7 +617,9 @@ class _MainPageState extends State<MainPage> {
                 StaggeredTile.extent(1, 180.0),
                 StaggeredTile.extent(2, 110.0),
               ],
-            )));
+            )
+        )
+    );
   }
 
   /// Display date picker.

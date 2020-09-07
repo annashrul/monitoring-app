@@ -27,20 +27,22 @@ class GroupedBarChart extends StatelessWidget {
   }
 
   /// Create series list with multiple series
-  static List<charts.Series<OrdinalSales, String>> _createSampleData(
-      Monthly data) {
+  static List<charts.Series<OrdinalSales, String>> _createSampleData(Monthly data) {
     List<OrdinalSales> desktopSalesData = [];
     List<OrdinalSales> tableSalesData = [];
-    data.labelLokasi.asMap().forEach((index, value) => {
-          desktopSalesData.insert(
-            index,
-            new OrdinalSales(data.labelLokasi[index], data.bulanLalu[index]),
-          ),
-          tableSalesData.insert(
-            index,
-            new OrdinalSales(data.labelLokasi[index], data.bulanIni[index]),
-          )
-        });
+    if(data.labelLokasi!=null){
+      data.labelLokasi.asMap().forEach((index, value) => {
+        desktopSalesData.insert(
+          index,
+          new OrdinalSales(data.labelLokasi[index], data.bulanLalu[index]),
+        ),
+        tableSalesData.insert(
+          index,
+          new OrdinalSales(data.labelLokasi[index], data.bulanIni[index]),
+        )
+      });
+    }
+
 
     return [
       new charts.Series<OrdinalSales, String>(
